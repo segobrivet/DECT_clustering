@@ -7,7 +7,6 @@
 
 addpath('utils');
 
-% PB: "HNSCC10A": Nb of folder differs from nb of energy levels
 
 for patient_name = ["HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10",...
         "HNSCC11","HNSCC12","HNSCC13","HNSCC15","HNSCC15A","HNSCC17","HNSCC17A","HNSCC18","HNSCC20",...
@@ -35,9 +34,10 @@ for patient_name = ["HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10",...
 %         "HNSCC91","HNSCC92","HNSCC95","HNSCC96","HNSCC97","HNSCC98",...
 %         "HNSCC100","HNSCC101","HNSCC102", "HNSCC103","HNSCC105","HNSCC106","HNSCC108","HNSCC109"]
 
-% % TODO: 
-% for patient_name = ["HNSCC1","HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10","HNSCC10A","HNSCC11","HNSCC12","HNSCC13","HNSCC15","HNSCC15A","HNSCC17","HNSCC17A","HNSCC18","HNSCC20","HNSCC21","HNSCC22A","HNSCC25","HNSCC26"]
-%    % to check 
+% PB: "HNSCC1": different size in 40kev slices (512*469) compared to 45,...,140kev slices (512*512)
+% PB: "HNSCC10A": names of folder differs from other patients
+% PB: "HNSCC60": Different number of Z slices according to keV levels
+% PB: "HNSCC102: on Mac: /Users/Shared/datasts/HNSCC/Multi-Energy/HNSCC102/ROI mask/Hnscc102 is empty
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -47,8 +47,7 @@ segm_folder = "C:\\Users\\Segolene\\Documents\\Canada\\McGill\\PhD\\Multi-energy
 % segm_folder = "/Users/Shared/datasts/HNSCC/Multi-energy";
 segm_type = 'tumor';
 kev_list = 40:5:140;
-% additional_vars.organ_id = {{1,2},{5,6},{7}};  %{{1,8}};
-additional_vars.verbose = 1;
+verbose = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -64,7 +63,7 @@ medic_img_struct = '';
 gt_path_name = fullfile('..','data_tumor',[subject_id,'_GT.mat']);
 if isfile(gt_path_name)
     segm_vol_full = load(gt_path_name).segm_vol_full;
-    if additional_vars.verbose
+    if verbose
         disp("Ground truth '" + gt_path_name + "' has been loaded."); disp(' ');
     end
 else
@@ -76,7 +75,7 @@ else
     end
     % save for next time
     save(gt_path_name,'segm_vol_full');
-    if additional_vars.verbose
+    if verbose
         disp("Ground truth saved with the name '" + gt_path_name + "'."); disp(' ');
     end
 end
@@ -91,7 +90,7 @@ subject_path_name = fullfile('..','data_tumor',[subject_id,'.mat']);
 
 if isfile(subject_path_name)
     subject = load(subject_path_name).subject;
-    if additional_vars.verbose
+    if verbose
         disp("Patient " + patient_name + " loaded."); disp(' ');
     end
     
@@ -117,6 +116,7 @@ else
     
     % if GT and subject don't have the same nb of slices,
     % either duplicate some GT slices to fit subject slices, or select some slices in GT to match the fewer in subject
+    % /!\ This is not the ideal solution /!\
     if size(segm_vol_full,3) ~= size(subject_full{1},3)
         
         [select_ind,vrb] = adjust_GT_subj_slices(size(segm_vol_full,3), size(subject_full{1},3));
@@ -133,7 +133,7 @@ else
                     
                     % rewrite ground truth
                     save(gt_path_name,'segm_vol_full');
-                    if additional_vars.verbose
+                    if verbose
                         disp("Ground truth '" + gt_path_name + "' has been updated."); disp(' ');
                     end
                 end
@@ -154,7 +154,7 @@ else
     end
     % save for next time
     save(subject_path_name,'subject');
-    if additional_vars.verbose
+    if verbose
         disp("Scan section saved with the name '" + subject_path_name + "'."); disp(' ');
     end
 end
