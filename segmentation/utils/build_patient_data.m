@@ -45,7 +45,7 @@ function res = build_patient_data(machine_type, patient_nm, take_all_slices, org
     
     % Get tumor slices
     [~,~,slic_min] = ind2sub(size(segm_vol_full),find(segm_vol_full,1,'first')); % lower slice containing a tumor
-    [~,~,slic_max] = ind2sub(size(segm_vol_full),find(segm_vol_full,1,'last')); % lower slice containing a tumor
+    [~,~,slic_max] = ind2sub(size(segm_vol_full),find(segm_vol_full,1,'last')); % higher slice containing a tumor
     % Selecting all tumor slices
     if take_all_slices   % take all tumor slices
         slic_inds = 1:(slic_max-slic_min+1);

@@ -189,7 +189,7 @@ while (EM_run <= nbr_EM_runs)
                 if nk ~= 0
                     Mus(k,:) = Mus(k,:)/nk;
                 else
-                    a=0;
+                    a=0;   % TODO: this differs and next one with R too
                 end
                 Z=(Xw-ones(n,1)*Mus(k,:)).*(sqrt(Tauik(:,k))*ones(1,d));
                 
@@ -198,7 +198,7 @@ while (EM_run <= nbr_EM_runs)
                 R(:,:,k) =  lambda *  (Z'*Z);
                 if nk ~= 0
                     R(:,:,k) = R(:,:,k)/nk;
-                end
+                end   % TODO: this differs
                 
 %                 Theta(:,:,k) = inv(R(:,:,k));  % TODO: useful?
             end

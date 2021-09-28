@@ -23,7 +23,8 @@ if init_kmeans
     max_iter_kmeans = 500;  % 300
     n_tries_kmeans = 1;
     verbose_kmeans = 0;
-    sol_kmeans = myKmeans(Y, K, n_tries_kmeans, max_iter_kmeans, verbose_kmeans);
+    sol_kmeans = myKmeans(V, K, n_tries_kmeans, max_iter_kmeans, verbose_kmeans);     % spatial !
+%     sol_kmeans = myKmeans(Y, K, n_tries_kmeans, max_iter_kmeans, verbose_kmeans);   % curves !
     klas = sol_kmeans.klas;
 %     klas = kmeans(Y, K, 'MaxIter', max_iter_kmeans);
 else % random partition
@@ -55,15 +56,15 @@ else
     %% Gaussian gating
     
     % Gating Net parameters
-%     if init_kmeans
-%         sol_km = sol_kmeans;
-%     else
+    if init_kmeans
+        sol_km = sol_kmeans;
+    else
         max_iter_kmeans = 300;
         n_tries_kmeans = 2;
         verbose_kmeans = 0;
         sol_km = myKmeans(V, K , n_tries_kmeans, max_iter_kmeans, verbose_kmeans);   % kmeans for spatial coordinates !
 %         sol_km = myKmeans(Y, K , n_tries_kmeans, max_iter_kmeans, verbose_kmeans);   % kmeans for curves !
-%     end
+    end
 %     save(['solInitKmeans_cl',num2str(K),'_',num2str(randi(1000)),'.mat'],'sol_km');
 %     save(['solInitKmeansCurves_cl',num2str(K),'_',num2str(randi(1000)),'.mat'],'sol_kmeans');
     klas = sol_km.klas;

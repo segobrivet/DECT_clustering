@@ -15,12 +15,13 @@ addpath('utils');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% MACHINE and FOLDER NAMES %%%%%%%%%%%%%%%%%%%%%%
 % machine_type = 'sego_laptop';
-machine_type = 'sego_clean';
+% machine_type = 'sego_clean';
 % machine_type = 'Peter';
 % machine_type = 'GPU';
+machine_type = 'GPU_clean';
 
-results_folder_name = 'results_test';
-
+% results_folder_name = 'results_test';
+results_folder_name = 'results_clean';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% MODEL OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 strategy = 'FunSRM'; init_kmeans_dep = 1;
@@ -31,7 +32,7 @@ strategy = 'FunSRM'; init_kmeans_dep = 1;
 % mixingOption = 'softmax';
 mixingOption = 'gaussian';
 
-lambda = 0.07;
+% lambda = 0.07;
 
 % model = "PRM"; % Polynomial regression mixture
 % model = "SRM"; % Spline regression mixture
@@ -45,7 +46,7 @@ nknots = 10; % fixed number of internal knots, for (b-)spline spatial regression
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% DATA OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ROI size
-roi_radius = 130;
+roi_radius = 90;
 
 % tissue enhancement window
 lvl = 150;  % 40  % 70
@@ -62,10 +63,10 @@ max_slic_subplot = 6;
 plot_clusterCurves = 0;
 
 plot_initResults = 0;
-plot_filter3 = 0;
+plot_filter3 = 1;
 plot_filter5 = 0;
 plot_initMerge = 0;
-plot_mergeFilter3 = 0;
+plot_mergeFilter3 = 1;
 plot_rab = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% TO LOAD A SAVED MODEL %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -81,8 +82,8 @@ nbr_EM_runs = 1;
 
 for K = 60   % 300 %[40,50,60] % number of clusters
 
-%% To read saved result variables in a folder and plot the images
-% fls = dir(fullfile(results_folder_name,'/HNSCC18*cl50_mixstats_red.mat'));
+% %% To read saved result variables in a folder and plot the images
+% fls = dir(fullfile(results_folder_name,'/HNSCC3_906*cl60_mixstats_red.mat'));
 % for nm = 1:length(fls)
 % %     imsegkmeanspath = fullfile(results_folder_name,fls(nm).name);
 %     mixstatspath = fullfile(results_folder_name,fls(nm).name);
@@ -94,23 +95,38 @@ for K = 60   % 300 %[40,50,60] % number of clusters
 
 
 % % for visualising init MyKmeans
-% % fls = dir(fullfile(results_folder_name,'/solInitKmeans*.mat'));
-% fls = dir('solInitKmeansSpat*.mat');
+% % fls = dir(fullfile(results_folder_name,'/solInitKmeans*54.mat'));
+% fls = dir('solInitKmeans*815.mat');
 % for nm = 1:length(fls)
 % %     mixstatspath = fullfile(results_folder_name,fls(nm).name);
 %     mixstatspath = fullfile(fls(nm).name);
 %     str = split(fls(nm).name,'_');
-%     patient_name = 'subject21';
+%     patient_name = 'HNSCC3';
 %     roi_radius = 90;
 %     K = str{2}; K = str2num(K(3:end));
 %     rdn = str{3}; rdn = rdn(1:end-4);
 
 %%
 
-for patient_name = ["HNSCC9"]
+% for patient_name = ["HNSCC3"]
     
 % for patient_name = ["subject8_tumor","HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10","HNSCC11","HNSCC12","HNSCC13","HNSCC15","HNSCC17","HNSCC18","HNSCC26"]
     
+for patient_name = ["HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10",...
+        "HNSCC11","HNSCC12","HNSCC13","HNSCC15","HNSCC15A","HNSCC17","HNSCC17A","HNSCC18","HNSCC20",...
+        "HNSCC21","HNSCC22","HNSCC22A","HNSCC25","HNSCC26","HNSCC27","HNSCC29","HNSCC30",...
+        "HNSCC31A","HNSCC32","HNSCC33","HNSCC34","HNSCC35","HNSCC36","HNSCC37A","HNSCC38","HNSCC39",...
+        "HNSCC41","HNSCC42","HNSCC44","HNSCC44AM","HNSCC45","HNSCC46","HNSCC47","HNSCC48","HNSCC49",...
+        "HNSCC51","HNSCC52","HNSCC52AM","HNSCC53","HNSCC55","HNSCC56","HNSCC57",...
+        "HNSCC61A","HNSCC62","HNSCC63","HNSCC63A","HNSCC64A","HNSCC65A","HNSCC66","HNSCC67","HNSCC68","HNSCC69",...
+        "HNSCC70A","HNSCC71","HNSCC72A","HNSCC73","HNSCC74","HNSCC75","HNSCC76","HNSCC77","HNSCC78","HNSCC79","HNSCC80",...
+        "HNSCC81","HNSCC82","HNSCC83","HNSCC84","HNSCC85","HNSCC87","HNSCC88","HNSCC89","HNSCC90",...
+        "HNSCC91","HNSCC92","HNSCC95","HNSCC96","HNSCC97","HNSCC98",...
+        "HNSCC100","HNSCC101","HNSCC103","HNSCC105","HNSCC106","HNSCC108","HNSCC109"]
+		% "HNSCC1","HNSCC10A","HNSCC60","HNSCC102"]
+        
+        
+for lambda = [0.55,0.07,0.85]
     
     %% Data (spectral image)
 
@@ -131,7 +147,7 @@ for patient_name = ["HNSCC9"]
     rmin = res.rmin; rmax = res.rmax; cmin = res.cmin; cmax = res.cmax; coord = res.coord;
     
     [n, m] = size(Y);
-    V(:,3) = coord(:,3)*2;   % spacing in Z is 1.25mm, spacing in X and in Y is 0.61mm, so Z is 2*bigger than X-Y.
+    V = coord; V(:,3) = coord(:,3)*2;   % spacing in Z is 1.25mm, spacing in X and in Y is 0.61mm, so Z is 2*bigger than X-Y.
     T = linspace(0, 1, 21);  % T = linspace(40,140,21); %1:21;
     
     Curves.spatialcoord = V;
@@ -149,7 +165,7 @@ for patient_name = ["HNSCC9"]
     
     for i=1:length(slic_show)
 %         tumor_contour_list{i} = bwboundaries(segm_vol_full(:,:,slic_inds(1)+slic_show(i)-1+slic_min-1 -1));   % shift of +1 in segm_vol_full/subject?
-        tumor_contour_list{i} = bwboundaries(gr_truth(:,:,slic_show(i)));
+        tumor_contour_list{i} = bwboundaries(gr_truth(:,:,slic_show(i)));   % TODO: is it good?
     end
     
     % original clustering
@@ -365,7 +381,8 @@ for patient_name = ["HNSCC9"]
         %     [mixstats.klas, K] = mrf_smoothing(coord, mixstats.klas, neighb);
         % end
 
-        fprintf('Elapsed time %f sec \n', toc);
+        elaps_time_clust = toc;
+        fprintf('Elapsed time %f sec \n', elaps_time_clust);
 
 
     end
@@ -434,8 +451,8 @@ for patient_name = ["HNSCC9"]
         else
             if ~isempty(fn_save_pdf)  &&  ~load_saved_mdl
                 rdn = num2str(randi(1000));
-                save([fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_mixmodel.mat'],'mixmodel')
-                save([fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_mixstats.mat'],'mixstats')
+                save([fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_lbda',num2str(lambda),'_mixmodel.mat'],'mixmodel')
+                save([fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_lbda',num2str(lambda),'_mixstats.mat'],'mixstats')
             end
         end
 
@@ -597,17 +614,17 @@ for patient_name = ["HNSCC9"]
 
             %     rdn = num2str(randi(1000));  % already initialized in SRM MODEL FITTING SECTION
 
-            if plot_initResults, savefig(fig_slic,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K)]); end
-            if plot_filter3, savefig(fig_slic2,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_filter',num2str(fsz1)]); end
-            if plot_filter5, savefig(fig_slic3,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_filter',num2str(fsz2)]); end
-            if plot_initMerge, savefig(fig_slic4,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_merged']); end
-            if plot_mergeFilter3, savefig(fig_slic5,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_merged_filter',num2str(fsz1)]); end
+            if plot_initResults, savefig(fig_slic,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_lbda',num2str(lambda)]); end
+            if plot_filter3, savefig(fig_slic2,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_lbda',num2str(lambda),'_filter',num2str(fsz1)]); end
+            if plot_filter5, savefig(fig_slic3,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_lbda',num2str(lambda),'_filter',num2str(fsz2)]); end
+            if plot_initMerge, savefig(fig_slic4,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_lbda',num2str(lambda),'_merged']); end
+            if plot_mergeFilter3, savefig(fig_slic5,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_lbda',num2str(lambda),'_merged_filter',num2str(fsz1)]); end
 
-            if plot_initResults, save_pdf(fig_slic, [fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'.pdf']); end
-            if plot_filter3, save_pdf(fig_slic2,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_filter',num2str(fsz1),'.pdf']); end
-            if plot_filter5, save_pdf(fig_slic3,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_filter',num2str(fsz2),'.pdf']); end
-            if plot_initMerge, save_pdf(fig_slic4,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_merged']); end
-            if plot_mergeFilter3, save_pdf(fig_slic5,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_merged_filter',num2str(fsz1)]); end
+            if plot_initResults, save_pdf(fig_slic, [fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_lbda',num2str(lambda),'.pdf']); end
+            if plot_filter3, save_pdf(fig_slic2,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_lbda',num2str(lambda),'_filter',num2str(fsz1),'.pdf']); end
+            if plot_filter5, save_pdf(fig_slic3,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_lbda',num2str(lambda),'_filter',num2str(fsz2),'.pdf']); end
+            if plot_initMerge, save_pdf(fig_slic4,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_lbda',num2str(lambda),'_merged']); end
+            if plot_mergeFilter3, save_pdf(fig_slic5,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_lbda',num2str(lambda),'_merged_filter',num2str(fsz1)]); end
 
 
             % Save more figures
@@ -625,7 +642,12 @@ for patient_name = ["HNSCC9"]
             % save reduced variable to be smaller in size and able to transfer easily from GPU to local machine
             mixstats_red.Muk = mixstats.Muk;
             mixstats_red.klas = mixstats.klas;
-            save([fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_mixstats_red.mat'],'mixstats_red')
+            mixstats_red.lambda = lambda;
+            mixstats_red.elaps_time = elaps_time_clust;
+            mixstats_red.loglik = mixstats.loglik;
+            mixstats_red.dice = max_dice;
+            mixstats_red.dice_mrg_flt = max_dice_filt1;
+            save([fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_lbda',num2str(lambda),'_mixstats_red.mat'],'mixstats_red')
         end
     
     end
@@ -634,6 +656,8 @@ for patient_name = ["HNSCC9"]
 %     jac = [jac, max_jacc_filt1];
     
 end  % end patient
+
+end  % lambda
 
 end  % end K
 
