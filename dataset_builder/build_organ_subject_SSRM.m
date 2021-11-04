@@ -12,8 +12,12 @@ addpath('utils_organs');
 
 data_folder = "C:\\Users\\Segolene\\Documents\\Canada\\McGill\\PhD\\Multi-energy CT\\data\\SRG_MultiEnergy";
 segm_folder = "C:\\Users\\Segolene\\Documents\\Canada\\McGill\\PhD\\Multi-energy CT\\data\\SRG_MultiEnergy";
-patient_names = ["SRG12_MultiEnergy","SRG14_MultiEnergy","SRG15_MultiEnergy","SRG18_MultiEnergy","SRG21_MultiEnergy","SRG23_MultiEnergy","SRG24_MultiEnergy","SRG32_MultiEnergy","SRG92_MultiEnergy","SRG94_MultiEnergy"];
-segm_type = 'organs'; % "SRG3_MultiEnergy": done,"SRG7_MultiEnergy": too big to save.
+% data_folder = "/Users/Shared/datasts/HNSCC/Multi-energy";
+% segm_folder = "/Users/Shared/datasts/HNSCC/Multi-energy";
+
+% patient_names = ["SRG12_MultiEnergy","SRG14_MultiEnergy","SRG15_MultiEnergy","SRG18_MultiEnergy","SRG21_MultiEnergy","SRG23_MultiEnergy","SRG24_MultiEnergy","SRG32_MultiEnergy","SRG92_MultiEnergy","SRG94_MultiEnergy"];
+patient_names = ["SRG3_MultiEnergy","SRG7_MultiEnergy","SRG8_MultiEnergy","SRG14_MultiEnergy"];
+segm_type = 'organs';
 additional_vars.organ_id = {{3},{4}};
 additional_vars.verbose = 1;
 
