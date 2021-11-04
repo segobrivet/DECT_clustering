@@ -9,6 +9,19 @@ function [nrrd_struct, segm_vol_full, segm_vol_full_list, study_type] = ...
 % segm_type             : string containing the segmentation type
 % organ_id              : cell of cells containing the organ ids to focus on, {} for tumor or lymph node
 
+% legend for organ_id:
+% 
+% 1 - LeftSubmandibularGland 
+% 2 - RightSubmandibularGland 
+% 3 - LeftParotidGland
+% 4 - RightParotidGland
+% 5 - ThyroidGland
+% 6 - ThyroidCartilage
+% 7 - LungApex 
+% 8 - MuscleTissue 
+% 9 - C3VertebralBody 
+
+
 % find segmentation file
 filelist = dir(fullfile(segm_folder,patient_name,'**/*.nrrd'));
 switch segm_type

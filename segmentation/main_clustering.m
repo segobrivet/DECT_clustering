@@ -112,7 +112,7 @@ for K = 60   % 300 %[40,50,60] % number of clusters
 
 %%
 
-for patient_name = ["HNSCC3"]
+for patient_name = ["HNSCC109"]
     
 % for patient_name = ["subject8_tumor","HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10","HNSCC11","HNSCC12","HNSCC13","HNSCC15","HNSCC17","HNSCC18","HNSCC26"]
     

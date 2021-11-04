@@ -8,16 +8,17 @@ close all;
 clear; clc;
 
 addpath('utils');
+addpath('utils_organs');
 
 data_folder = "C:\\Users\\Segolene\\Documents\\Canada\\McGill\\PhD\\Multi-energy CT\\data\\SRG_MultiEnergy";
 segm_folder = "C:\\Users\\Segolene\\Documents\\Canada\\McGill\\PhD\\Multi-energy CT\\data\\SRG_MultiEnergy";
-patient_name = "SRG24_MultiEnergy";
-segm_type = 'organs';
-additional_vars.organ_id = {{1,2},{5,6},{7}};  %{{1,2}};
+patient_names = ["SRG12_MultiEnergy","SRG14_MultiEnergy","SRG15_MultiEnergy","SRG18_MultiEnergy","SRG21_MultiEnergy","SRG23_MultiEnergy","SRG24_MultiEnergy","SRG32_MultiEnergy","SRG92_MultiEnergy","SRG94_MultiEnergy"];
+segm_type = 'organs'; % "SRG3_MultiEnergy": done,"SRG7_MultiEnergy": too big to save.
+additional_vars.organ_id = {{3},{4}};
 additional_vars.verbose = 1;
 
 
-
+for patient_name = patient_names
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -30,7 +31,7 @@ medic_img_struct = '';
 gt_path_name_list = {};
 build_subject = 0;
 for s=1:length(org_str_list)
-    gt_path_name_list{s} = fullfile('data_organs',[subject_id,'_',org_str_list{s},'_GT.mat']);
+    gt_path_name_list{s} = fullfile('..','data_organs',[subject_id,'_',org_str_list{s},'_GT.mat']);
     if ~isfile(gt_path_name_list{s}), build_subject = 1; end
 end
 
@@ -71,7 +72,7 @@ end
 subject_path_name_list = {};
 build_subject = 0;
 for s=1:length(org_str_list)
-    subject_path_name_list{s} = fullfile('data_organs',[subject_id,'_',org_str_list{s},'.mat']);
+    subject_path_name_list{s} = fullfile('..','data_organs',[subject_id,'_',org_str_list{s},'.mat']);
     if ~isfile(subject_path_name_list{s}), build_subject = 1; end
 end
 
@@ -146,4 +147,7 @@ else
             disp("Scan section saved with the name '" + subject_path_name_list{c} + "'."); disp(' ');
         end
     end
+end
+
+
 end
