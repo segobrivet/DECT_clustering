@@ -93,7 +93,7 @@ nrrd_struct.data = [];
 
 % % % % % % % % % %%%%%  REFINEMENTS IF TOO BIG  %%%%% % % % % % % % % % %
 
-if ismepty(segm_vol_full_list) && ~isempty(segm_vol_full)
+if isempty(segm_vol_full_list) && ~isempty(segm_vol_full)
     segm_vol_full = cut_if_big_object(segm_vol_full);
 else
     for c = 1:length(segm_vol_full_list)

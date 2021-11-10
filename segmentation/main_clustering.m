@@ -21,6 +21,7 @@ machine_type = 'sego_clean';
 % machine_type = 'GPU_clean';
 
 results_folder_name = 'results_test';
+% results_folder_name = 'results_organ3';
 % results_folder_name = 'results_clean';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% MODEL OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -52,7 +53,7 @@ roi_radius = 90;
 lvl = 150;  % 40  % 70
 wdw = 700;  % 350  % 500
 
-org_ids = '1-2';
+org_ids = '3';  % 1-2
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% CHOOSE PLOTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 show_slices = 'middle';
@@ -70,7 +71,7 @@ plot_mergeFilter3 = 1;
 plot_rab = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% TO LOAD A SAVED MODEL %%%%%%%%%%%%%%%%%%%%%%%%%
-load_saved_mdl = 1;
+load_saved_mdl = 0;
 pat = [];
 dic = [];
 jac = [];
@@ -112,7 +113,7 @@ for K = 60   % 300 %[40,50,60] % number of clusters
 
 %%
 
-for patient_name = ["HNSCC109"]
+for patient_name = ["HNSCC9"]
     
 % for patient_name = ["subject8_tumor","HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10","HNSCC11","HNSCC12","HNSCC13","HNSCC15","HNSCC17","HNSCC18","HNSCC26"]
     
@@ -130,7 +131,7 @@ for patient_name = ["HNSCC109"]
 % 		% "HNSCC1","HNSCC10A","HNSCC60","HNSCC102"]
         
         
-for lambda = [0.055,0.07,0.09,0.20]
+for lambda = [0.07]
     
     %% Data (spectral image)
 
@@ -142,7 +143,7 @@ for lambda = [0.055,0.07,0.09,0.20]
     
     %%% Build dataset for a specific patient
     
-    take_all_slices = 0;
+    take_all_slices = 0;  % if 0: take only 8 midle slices; if 1: take all available slices (max 20 if latest generated)
     res = build_patient_data(machine_type, patient_nm, take_all_slices, org_ids, roi_radius, max_slic_subplot, show_slices);
     
     Y = res.Y; decay_curves = res.decay_curves; gr_truth = res.gr_truth;
@@ -517,7 +518,7 @@ for lambda = [0.055,0.07,0.09,0.20]
 %             vars.max_cl = max_cl1;
             vars.match_klas = match_klas_filt1;
             show_result_on_img(reco_lbl_filt1, vars);
-            suptitle(sprintf('6 %s slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), fsz1, fsz1, fsz1, length(match_klas), max_dice_filt1, max_jacc_filt1))
+            sgtitle(sprintf('6 %s slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), fsz1, fsz1, fsz1, length(match_klas), max_dice_filt1, max_jacc_filt1),'FontSize',14,'FontWeight','bold')
         end
         
         % % With majority filter 2
@@ -598,7 +599,7 @@ for lambda = [0.055,0.07,0.09,0.20]
             % plot results
             figure(fig_slic5)
             show_result_on_img(reco_lbl_filt1, vars);
-            suptitle(sprintf('6 %s slices / %d.   Merged  -  With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), fsz1, fsz1, fsz1, length(match_klas_filt1), max_dice_filt1, max_jacc_filt1))
+            sgtitle(sprintf('6 %s slices / %d.   Merged  -  With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), fsz1, fsz1, fsz1, length(match_klas_filt1), max_dice_filt1, max_jacc_filt1),'FontSize',14,'FontWeight','bold')
         end
         
         

@@ -7,7 +7,7 @@
 
 addpath('utils');
 
-for patient_name = ["HNSCC109"] % prendre seulement la partie des slices où tumeur est la plus grande.
+for patient_name = ["HNSCC9"]
 
 % for patient_name = ["HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10",...
 %         "HNSCC11","HNSCC12","HNSCC13","HNSCC15","HNSCC15A","HNSCC17","HNSCC17A","HNSCC18","HNSCC20",...
@@ -42,8 +42,10 @@ for patient_name = ["HNSCC109"] % prendre seulement la partie des slices où tume
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-data_folder = "C:\\Users\\Segolene\\Documents\\Canada\\McGill\\PhD\\Multi-energy CT\\data\\HNSCC";
-segm_folder = "C:\\Users\\Segolene\\Documents\\Canada\\McGill\\PhD\\Multi-energy CT\\data\\HNSCC";
+% data_folder = "C:\\Users\\Segolene\\Documents\\Canada\\McGill\\PhD\\Multi-energy CT\\data\\HNSCC";
+% segm_folder = "C:\\Users\\Segolene\\Documents\\Canada\\McGill\\PhD\\Multi-energy CT\\data\\HNSCC";
+data_folder = "~/Documents/Data/";
+segm_folder = "~/Documents/Data/";
 % data_folder = "/Users/Shared/datasts/HNSCC/Multi-energy";
 % segm_folder = "/Users/Shared/datasts/HNSCC/Multi-energy";
 segm_type = 'tumor';

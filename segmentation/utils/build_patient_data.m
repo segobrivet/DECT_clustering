@@ -70,22 +70,59 @@ function res = build_patient_data(machine_type, patient_nm, take_all_slices, org
         slic_show = 1:length(slic_inds);
     end
     
+    % contour of body
+    [subj_slic, focus, xy_min, xy_max] = mask_outOfBody(permute(subject{1}(:,:,slic_inds),[2 1 3]));
+    
     % Select a ROI of the 3D volume
     gr_truth = segm_vol_full(:,:,slic_min+slic_inds-1);
+    s = regionprops(gr_truth,'centroid');
+    try
+        assert(length(s.Centroid) == 3);
+    catch 
+        error("Ground truth tumor contains more than 1 connected component");
+    end
+    tc = round(s.Centroid(1)); tr = round(s.Centroid(2));
+    
+    rmax = tr + 128;
+    rmin = tr - 127;
+    if rmax > xy_max(1)
+        shift = rmax - xy_max(1);
+        rmax = xy_max(1);
+        rmin = rmin - shift;
+        if rmin < xy_min(1)
+            rmin = xy_min(1);
+        end
+    end
+    cmax = tc + 128;
+    cmin = tc - 127;
+    if cmax > xy_max(2)
+        shift = cmax - xy_max(2);
+        cmax = xy_max(2);
+        cmin = cmin - shift;
+        if cmin < xy_min(2)
+            cmin = xy_min(2);
+        end
+    end
+    
+    
+    
+    %%% TO CONTINUE %%%
     gr_truth_dil = zeros(size(gr_truth));
     for i=1:length(slic_inds)
-        gr_truth_dil(:,:,i) = imdilate(gr_truth(:,:,i),strel('disk',roi_radius));
+        gr_truth_dil(rmin:rmax,cmin:cmax,i) = ones(rmax-rmin+1,cmax-cmin+1);
+%         gr_truth_dil(:,:,i) = imdilate(gr_truth(:,:,i),strel('disk',roi_radius));
     end
     lin_obj = find(gr_truth_dil);  % ROI around tumor;
+    
     % Remove air voxel
-    [subj_slic, focus, xy_min, xy_max] = mask_outOfBody(permute(subject{1}(:,:,slic_inds),[2 1 3]));
     lin_air = subj_slic(lin_obj)<-500;
     lin_obj = lin_obj(~lin_air);
+    
     % find coordinates of ROIs and frame of the plot
     [row_obj, col_obj, z_obj] = ind2sub(size(gr_truth),lin_obj);
     coord = [row_obj, col_obj, z_obj+slic_inds(1)-1];
-    rmin = max(min(row_obj)-10,1); cmin = max(min(col_obj)-10,1);
-    rmax = min(max(row_obj)+10,size(subj_slic,1)); cmax = min(max(col_obj)+10,size(subj_slic,2));
+%     rmin = max(min(row_obj)-10,1); cmin = max(min(col_obj)-10,1);
+%     rmax = min(max(row_obj)+10,size(subj_slic,1)); cmax = min(max(col_obj)+10,size(subj_slic,2));
     
     % Build tumor class label map
     lin_tum = find(gr_truth);  % tumor;
