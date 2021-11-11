@@ -70,10 +70,12 @@ function res = build_patient_data(machine_type, patient_nm, take_all_slices, org
         slic_show = 1:length(slic_inds);
     end
     
+    
     % contour of body
     [subj_slic, focus, xy_min, xy_max] = mask_outOfBody(permute(subject{1}(:,:,slic_inds),[2 1 3]));
     
-    % Select a ROI of the 3D volume
+    
+    % Select a ROI of the 3D volume    
     gr_truth = segm_vol_full(:,:,slic_min+slic_inds-1);
     s = regionprops(gr_truth,'centroid');
     try
@@ -83,8 +85,8 @@ function res = build_patient_data(machine_type, patient_nm, take_all_slices, org
     end
     tc = round(s.Centroid(1)); tr = round(s.Centroid(2));
     
-    rmax = tr + 128;
-    rmin = tr - 127;
+    rmax = tr + floor(roi_radius/2);
+    rmin = tr - (ceil(roi_radius/2)-1);
     if rmax > xy_max(1)
         shift = rmax - xy_max(1);
         rmax = xy_max(1);
@@ -93,8 +95,8 @@ function res = build_patient_data(machine_type, patient_nm, take_all_slices, org
             rmin = xy_min(1);
         end
     end
-    cmax = tc + 128;
-    cmin = tc - 127;
+    cmax = tc + floor(roi_radius/2);
+    cmin = tc - (ceil(roi_radius/2)-1);
     if cmax > xy_max(2)
         shift = cmax - xy_max(2);
         cmax = xy_max(2);
@@ -105,12 +107,11 @@ function res = build_patient_data(machine_type, patient_nm, take_all_slices, org
     end
     
     
-    
-    %%% TO CONTINUE %%%
+    % Remove air voxel
     gr_truth_dil = zeros(size(gr_truth));
     for i=1:length(slic_inds)
-        gr_truth_dil(rmin:rmax,cmin:cmax,i) = ones(rmax-rmin+1,cmax-cmin+1);
-%         gr_truth_dil(:,:,i) = imdilate(gr_truth(:,:,i),strel('disk',roi_radius));
+        gr_truth_dil(rmin:rmax,cmin:cmax,i) = ones(rmax-rmin+1,cmax-cmin+1);  % for a square
+%         gr_truth_dil(:,:,i) = imdilate(gr_truth(:,:,i),strel('disk',roi_radius)); % for a circle
     end
     lin_obj = find(gr_truth_dil);  % ROI around tumor;
     
@@ -121,6 +122,7 @@ function res = build_patient_data(machine_type, patient_nm, take_all_slices, org
     % find coordinates of ROIs and frame of the plot
     [row_obj, col_obj, z_obj] = ind2sub(size(gr_truth),lin_obj);
     coord = [row_obj, col_obj, z_obj+slic_inds(1)-1];
+%     % following 2 lines for a circle
 %     rmin = max(min(row_obj)-10,1); cmin = max(min(col_obj)-10,1);
 %     rmax = min(max(row_obj)+10,size(subj_slic,1)); cmax = min(max(col_obj)+10,size(subj_slic,2));
     
@@ -158,6 +160,7 @@ function res = build_patient_data(machine_type, patient_nm, take_all_slices, org
     res.subj_slic = subj_slic;
     res.slic_min = slic_min;
     res.slic_min_idx = slic_inds(1)+slic_min-2;
+    res.focus = focus;
     
     end
     

@@ -47,7 +47,8 @@ nknots = 10; % fixed number of internal knots, for (b-)spline spatial regression
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% DATA OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ROI size
-roi_radius = 90;
+% roi_radius = 90;   % for a circle
+roi_radius = 192;  % for a square
 
 % tissue enhancement window
 lvl = 150;  % 40  % 70
@@ -147,7 +148,7 @@ for lambda = [0.07]
     res = build_patient_data(machine_type, patient_nm, take_all_slices, org_ids, roi_radius, max_slic_subplot, show_slices);
     
     Y = res.Y; decay_curves = res.decay_curves; gr_truth = res.gr_truth;
-    klas_tum = res.klas_tum; lin_obj = res.lin_obj; subj_slic = res.subj_slic;
+    klas_tum = res.klas_tum; lin_obj = res.lin_obj; subj_slic = res.subj_slic; focus = res.focus;
     slic_show = res.slic_show; slic_min_idx = res.slic_min_idx; slic_min = res.slic_min; slic_inds = res.slic_inds;
     rmin = res.rmin; rmax = res.rmax; cmin = res.cmin; cmax = res.cmax; coord = res.coord;
     
@@ -170,7 +171,7 @@ for lambda = [0.07]
     
     for i=1:length(slic_show)
 %         tumor_contour_list{i} = bwboundaries(segm_vol_full(:,:,slic_inds(1)+slic_show(i)-1+slic_min-1 -1));   % shift of +1 in segm_vol_full/subject?
-        tumor_contour_list{i} = bwboundaries(gr_truth(:,:,slic_show(i)));   % TODO: is it good?
+        tumor_contour_list{i} = bwboundaries(gr_truth(:,:,slic_show(i)));
     end
     
     % original clustering
@@ -398,7 +399,7 @@ for lambda = [0.07]
     %%
     
     clr = jet(K+round(1/3*K));
-    clr = clr(1:K,:);  % remove red color
+    clr = clr(1:K,:);  % this removes red color
 
     vars.slic_show = slic_show;
     vars.slic_inds_1 = slic_inds(1);
@@ -472,8 +473,9 @@ for lambda = [0.07]
         % Simi score
 %         [dice_array, jacc_array] = compute_simi_scores(mixstats.klas, klas_tum, K);
 %         [max_sim, max_cl] = max(dice_array);
-        match_klas = match_tumor_clusters(klas_tum,mixstats.klas,K);
-        [max_dice, max_jacc] = compute_best_simi_score(mixstats.klas, klas_tum, match_klas);
+%         match_klas = match_tumor_clusters(klas_tum,mixstats.klas,K);
+%         [max_dice, max_jacc] = compute_best_simi_score(mixstats.klas, klas_tum, match_klas);
+        [max_dice, max_jacc, match_klas] = compute_best_dicjac(klas_tum, mixstats.klas, K);
         
         % Apply median filter
         if plot_filter3
@@ -484,8 +486,9 @@ for lambda = [0.07]
             % Simi score
 %             [dice_array1, jacc_array1] = compute_simi_scores(klas_filt1, klas_tum, K);
 %             [max_sim1, max_cl1] = max(dice_array1);
-            match_klas_filt1 = match_tumor_clusters(klas_tum,klas_filt1,K);
-            [max_dice_filt1, max_jacc_filt1] = compute_best_simi_score(klas_filt1, klas_tum, match_klas_filt1);
+%             match_klas_filt1 = match_tumor_clusters(klas_tum,klas_filt1,K);
+%             [max_dice_filt1, max_jacc_filt1] = compute_best_simi_score(klas_filt1, klas_tum, match_klas_filt1);
+            [max_dice_filt1, max_jacc_filt1, match_klas_filt1] = compute_best_dicjac(klas_tum, klas_filt1, K);
         end
 
         % Apply other median filter
@@ -497,8 +500,9 @@ for lambda = [0.07]
             % Simi score
 %             [dice_array2, jacc_array2] = compute_simi_scores(klas_filt2, klas_tum, K);
 %             [max_sim2, max_cl2] = max(dice_array2);
-            match_klas_filt2 = match_tumor_clusters(klas_tum,klas_filt2,K);
-            [max_dice_filt2, max_jacc_filt2] = compute_best_simi_score(klas_filt2, klas_tum, match_klas_filt2);
+%             match_klas_filt2 = match_tumor_clusters(klas_tum,klas_filt2,K);
+%             [max_dice_filt2, max_jacc_filt2] = compute_best_simi_score(klas_filt2, klas_tum, match_klas_filt2);
+            [max_dice_filt2, max_jacc_filt2, match_klas_filt2] = compute_best_dicjac(klas_tum, klas_filt2, K);
         end
         
         
@@ -509,7 +513,7 @@ for lambda = [0.07]
 %             vars.max_cl = max_cl;
             vars.match_klas = match_klas;
             show_result_on_img(reco_lbl, vars);
-            suptitle(sprintf('6 %s slices / %d.   %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), length(match_klas), max_dice, max_jacc))
+            sgtitle(sprintf('6 %s slices / %d.   %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), length(match_klas), max_dice, max_jacc),'FontSize',14,'FontWeight','bold')
         end
         
         % % With majority filter
@@ -527,7 +531,7 @@ for lambda = [0.07]
 %             vars.max_cl = max_cl2;
             vars.match_klas = match_klas_filt2;
             show_result_on_img(reco_lbl_filt2, vars);
-            suptitle(sprintf('6 %s slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_dice_filt2, max_jacc_filt2))
+            sgtitle(sprintf('6 %s slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_dice_filt2, max_jacc_filt2),'FontSize',14,'FontWeight','bold')
         end
         
         if plot_rab
@@ -535,37 +539,39 @@ for lambda = [0.07]
 %             vars.max_cl = max_cl;
             vars.match_klas = match_klas_filt2;
             show_result_on_img(reco_lbl_filt2, vars);
-            suptitle(sprintf('6 %s slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_sim2, jacc_array2(max_cl2)))
+            sgtitle(sprintf('6 %s slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_sim2, jacc_array2(max_cl2)),'FontSize',14,'FontWeight','bold')
         end
         
         
         %% Merge close clusters
         
-        klas = mixstats.klas;
-        
-        merged_cl = [0 0];
-        for k = 1:K
-            for k2 = (k+1):K
-                % functional distance (between Muk)
-                f = sum((mixstats.Muk(:,k2)-mixstats.Muk(:,k)).^2).^0.5 < 0.9;
-                % spatial distance (between coord)
-                coord_k = coord(klas == k,:); coord_k2 = coord(klas == k2,:);
-                mk = median(coord_k,1); mk2 = median(coord_k2,1);
-                dist_cl2_mk = mean(sum((mk-coord_k2).^2,2).^0.5);
-                dist_cl_mk2 = mean(sum((mk2-coord_k).^2,2).^0.5);
-                d = (dist_cl2_mk < 18) && (dist_cl_mk2 < 18);  %20;  % d = norm(mk-mk2) < 20;  %%% FIXED PARAM %%%
-                
-                % Merge
-                if ( f && d )
-                    merged_cl = [merged_cl; [k, k2]];
-                    klas( klas == k ) = k2;
-                end
-            end
-        end
-        mixstats.merged_cl = merged_cl(2:end,:);
+%         klas = mixstats.klas;
+%         
+%         merged_cl = [0 0];
+%         for k = 1:K
+%             for k2 = (k+1):K
+%                 % functional distance (between Muk)
+%                 f = sum((mixstats.Muk(:,k2)-mixstats.Muk(:,k)).^2).^0.5 < 0.9;
+%                 % spatial distance (between coord)
+%                 coord_k = coord(klas == k,:); coord_k2 = coord(klas == k2,:);
+%                 mk = median(coord_k,1); mk2 = median(coord_k2,1);
+%                 dist_cl2_mk = mean(sum((mk-coord_k2).^2,2).^0.5);
+%                 dist_cl_mk2 = mean(sum((mk2-coord_k).^2,2).^0.5);
+%                 d = (dist_cl2_mk < 18) && (dist_cl_mk2 < 18);  %20;  % d = norm(mk-mk2) < 20;  %%% FIXED PARAM %%%
+%                 
+%                 % Merge
+%                 if ( f && d )
+%                     merged_cl = [merged_cl; [k, k2]];
+%                     klas( klas == k ) = k2;
+%                 end
+%             end
+%         end
+%         mixstats.merged_cl = merged_cl(2:end,:);
         
         
         %% Build label maps  &  Compute similarity scores  &  Plot results
+        
+        %%% NOT UP TO DATE with 'compute_best_dicjac' function
         
         % reconstruct label map
         reco_lbl = zeros(size(gr_truth));
@@ -661,9 +667,9 @@ for lambda = [0.07]
         end
     
     end
-%     pat = [pat, patient_nm, ' '];
-%     dic = [dic, max_dice_filt1];
-%     jac = [jac, max_jacc_filt1];
+    pat = [pat, patient_nm, '; '];
+    dic = [dic, max_dice_filt1];
+    jac = [jac, max_jacc_filt1];
     
 end  % end patient
 
@@ -671,6 +677,9 @@ end  % end lambda
 
 end  % end K
 
+save([results_folder_name,'/all_dic.mat'],'dic');
+save([results_folder_name,'/all_jac.mat'],'jac');
+save([results_folder_name,'/all_pat.mat'],'pat');
 % pat, dic, jac
 
 
