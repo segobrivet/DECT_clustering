@@ -48,7 +48,7 @@ nknots = 10; % fixed number of internal knots, for (b-)spline spatial regression
 %%%%%%%%%%%%%%%%%%%%%%%%%%% DATA OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ROI size
 % roi_radius = 90;   % for a circle
-roi_radius = 192;  % for a square
+roi_radius = 100;  % for a square
 
 % tissue enhancement window
 lvl = 150;  % 40  % 70
@@ -68,21 +68,20 @@ plot_initResults = 0;
 plot_filter3 = 1;
 plot_filter5 = 0;
 plot_initMerge = 0;
-plot_mergeFilter3 = 1;
+plot_mergeFilter3 = 0;
 plot_rab = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% TO LOAD A SAVED MODEL %%%%%%%%%%%%%%%%%%%%%%%%%
 load_saved_mdl = 0;
 pat = [];
-dic = [];
-jac = [];
+dic = zeros(6,3);   %!!!%
+jac = zeros(6,3);   %!!!%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% NB OF RESTART %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nbr_EM_runs = 1;
 
 %% end of specifications
 
-for K = 60   % 300 %[40,50,60] % number of clusters
 
 %% To read saved result variables in a folder and plot the images
 % fls = dir(fullfile(results_folder_name,'/HNSCC3_*_mixstats.mat'));
@@ -114,7 +113,10 @@ for K = 60   % 300 %[40,50,60] % number of clusters
 
 %%
 
-for patient_name = ["HNSCC9"]
+pat_ind = 0;
+for patient_name = ["HNSCC2"] %,"HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10"]
+    
+    pat_ind = pat_ind + 1;
     
 % for patient_name = ["subject8_tumor","HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10","HNSCC11","HNSCC12","HNSCC13","HNSCC15","HNSCC17","HNSCC18","HNSCC26"]
     
@@ -133,6 +135,12 @@ for patient_name = ["HNSCC9"]
         
         
 for lambda = [0.07]
+    
+nb_K_ind = 0;
+for K = [50]   % 300 %[40,50,60] % number of clusters  % 60
+    
+    nb_K_ind = nb_K_ind + 1;
+    
     
     %% Data (spectral image)
 
@@ -573,40 +581,40 @@ for lambda = [0.07]
         
         %%% NOT UP TO DATE with 'compute_best_dicjac' function
         
-        % reconstruct label map
-        reco_lbl = zeros(size(gr_truth));
-        reco_lbl(lin_obj) = klas;
-        if plot_initMerge
-            % compute similarity scores
-%             [dice_array, jacc_array] = compute_simi_scores(klas, klas_tum, K);
-%             [max_dice, max_cl] = max(dice_array);
-%             vars.max_cl = max_cl;
-            match_klas = match_tumor_clusters(klas_tum,klas,K);
-            [max_dice, max_jacc] = compute_best_simi_score(klas, klas_tum, match_klas);
-            vars.match_klas = match_klas;
-            % plot results
-            figure(fig_slic4)
-            show_result_on_img(reco_lbl, vars);
-            suptitle(sprintf(sprintf('6 %s slices / %d.   Merged  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), length(match_klas), max_dice, max_jacc)))
-        end
-        
-        % apply filter
-        if plot_mergeFilter3
-            fsz1 = 3; % filter size: odd nb
-            reco_lbl_filt1 = medfilt3(reco_lbl, [fsz1 fsz1 fsz1]);
-            klas_filt1 = reco_lbl_filt1(lin_obj);
-            % compute similarity scores
-%             [dice_array1, jacc_array1] = compute_simi_scores(klas_filt1, klas_tum, K);
-%             [max_sim1, max_cl1] = max(dice_array1);
-%             vars.max_cl = max_cl1;
-            match_klas_filt1 = match_tumor_clusters(klas_tum,klas_filt1,K);
-            [max_dice_filt1, max_jacc_filt1] = compute_best_simi_score(klas_filt1, klas_tum, match_klas_filt1);
-            vars.match_klas = match_klas_filt1;
-            % plot results
-            figure(fig_slic5)
-            show_result_on_img(reco_lbl_filt1, vars);
-            sgtitle(sprintf('6 %s slices / %d.   Merged  -  With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), fsz1, fsz1, fsz1, length(match_klas_filt1), max_dice_filt1, max_jacc_filt1),'FontSize',14,'FontWeight','bold')
-        end
+%         % reconstruct label map
+%         reco_lbl = zeros(size(gr_truth));
+%         reco_lbl(lin_obj) = klas;
+%         if plot_initMerge
+%             % compute similarity scores
+% %             [dice_array, jacc_array] = compute_simi_scores(klas, klas_tum, K);
+% %             [max_dice, max_cl] = max(dice_array);
+% %             vars.max_cl = max_cl;
+%             match_klas = match_tumor_clusters(klas_tum,klas,K);
+%             [max_dice, max_jacc] = compute_best_simi_score(klas, klas_tum, match_klas);
+%             vars.match_klas = match_klas;
+%             % plot results
+%             figure(fig_slic4)
+%             show_result_on_img(reco_lbl, vars);
+%             suptitle(sprintf(sprintf('6 %s slices / %d.   Merged  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), length(match_klas), max_dice, max_jacc)))
+%         end
+%         
+%         % apply filter
+%         if plot_mergeFilter3
+%             fsz1 = 3; % filter size: odd nb
+%             reco_lbl_filt1 = medfilt3(reco_lbl, [fsz1 fsz1 fsz1]);
+%             klas_filt1 = reco_lbl_filt1(lin_obj);
+%             % compute similarity scores
+% %             [dice_array1, jacc_array1] = compute_simi_scores(klas_filt1, klas_tum, K);
+% %             [max_sim1, max_cl1] = max(dice_array1);
+% %             vars.max_cl = max_cl1;
+%             match_klas_filt1 = match_tumor_clusters(klas_tum,klas_filt1,K);
+%             [max_dice_filt1, max_jacc_filt1] = compute_best_simi_score(klas_filt1, klas_tum, match_klas_filt1);
+%             vars.match_klas = match_klas_filt1;
+%             % plot results
+%             figure(fig_slic5)
+%             show_result_on_img(reco_lbl_filt1, vars);
+%             sgtitle(sprintf('6 %s slices / %d.   Merged  -  With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), fsz1, fsz1, fsz1, length(match_klas_filt1), max_dice_filt1, max_jacc_filt1),'FontSize',14,'FontWeight','bold')
+%         end
         
         
         %% Plot decay curve results
@@ -667,15 +675,17 @@ for lambda = [0.07]
         end
     
     end
-    pat = [pat, patient_nm, '; '];
-    dic = [dic, max_dice_filt1];
-    jac = [jac, max_jacc_filt1];
     
-end  % end patient
-
-end  % end lambda
+    dic(pat_ind,nb_K_ind) = max_dice_filt1;
+    jac(pat_ind,nb_K_ind) = max_jacc_filt1;
 
 end  % end K
+    
+end  % end lambda
+
+    pat = [pat, patient_nm, '; '];
+
+end  % end patient
 
 save([results_folder_name,'/all_dic.mat'],'dic');
 save([results_folder_name,'/all_jac.mat'],'jac');

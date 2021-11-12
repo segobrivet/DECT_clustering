@@ -91,9 +91,11 @@ function res = build_patient_data(machine_type, patient_nm, take_all_slices, org
         shift = rmax - xy_max(1);
         rmax = xy_max(1);
         rmin = rmin - shift;
-        if rmin < xy_min(1)
-            rmin = xy_min(1);
-        end
+    end
+    if rmin < xy_min(1)
+        shift = xy_min(1) - rmin;
+        rmin = xy_min(1);
+        rmax = rmax + shift;		            
     end
     cmax = tc + floor(roi_radius/2);
     cmin = tc - (ceil(roi_radius/2)-1);
@@ -101,9 +103,11 @@ function res = build_patient_data(machine_type, patient_nm, take_all_slices, org
         shift = cmax - xy_max(2);
         cmax = xy_max(2);
         cmin = cmin - shift;
-        if cmin < xy_min(2)
-            cmin = xy_min(2);
-        end
+    end
+    if cmin < xy_min(2)
+        shift = xy_min(2) - cmin;
+        cmin = xy_min(2);
+        cmax = cmax + shift;
     end
     
     
