@@ -1,6 +1,6 @@
 % Load data and build dataset for ground truth and curves and prepare plots
 
-function res = build_patient_data(machine_type, patient_nm, take_all_slices, org_ids, roi_radius, max_slic_subplot, show_slices)
+function res = build_patient_data(machine_type, patient_nm, take_which_slices, org_ids, roi_radius, max_slic_subplot, show_slices)
 
     switch(machine_type)
         case('sego_laptop')
@@ -47,14 +47,19 @@ function res = build_patient_data(machine_type, patient_nm, take_all_slices, org
     [~,~,slic_min] = ind2sub(size(segm_vol_full),find(segm_vol_full,1,'first')); % lower slice containing a tumor
     [~,~,slic_max] = ind2sub(size(segm_vol_full),find(segm_vol_full,1,'last')); % higher slice containing a tumor
     % Selecting all tumor slices
-    if take_all_slices   % take all tumor slices
-        slic_inds = 1:(slic_max-slic_min+1);
-    else   % take 8 middle slices
-        slic_inds = round((slic_max-slic_min+1)/2)-4 : round((slic_max-slic_min+1)/2)+3;
-        if min(slic_inds) <= 0, slic_inds = slic_inds-slic_inds(1)+1; end
-        if max(slic_inds) > (slic_max-slic_min+1), slic_inds = slic_inds(slic_inds<=(slic_max-slic_min+1)); end
+    switch(take_which_slices)
+        case('all')   % take all tumor slices
+            slic_inds = 1:(slic_max-slic_min+1);
+%         case('8middle')   % take 8 middle slices
+%             slic_inds = round((slic_max-slic_min+1)/2)-4 : round((slic_max-slic_min+1)/2)+3;
+%             if min(slic_inds) <= 0, slic_inds = slic_inds-slic_inds(1)+1; end
+%             if max(slic_inds) > (slic_max-slic_min+1), slic_inds = slic_inds(slic_inds<=(slic_max-slic_min+1)); end
+        otherwise
+            slic_inds = round((slic_max-slic_min+1)/2)-floor(take_which_slices/2) : round((slic_max-slic_min+1)/2)+ceil(take_which_slices/2-1);
+            if min(slic_inds) <= 0, slic_inds = slic_inds-slic_inds(1)+1; end
+            if max(slic_inds) > (slic_max-slic_min+1), slic_inds = slic_inds(slic_inds<=(slic_max-slic_min+1)); end
     end
-    
+   
     % Selecting the 6 slices in the middle of the tumor to plot on figure
 %     max_slic_subplot = 6;
     if length(slic_inds) >= max_slic_subplot
@@ -69,18 +74,18 @@ function res = build_patient_data(machine_type, patient_nm, take_all_slices, org
     else
         slic_show = 1:length(slic_inds);
     end
-    
-    
+   
+   
     % contour of body
     [subj_slic, focus, xy_min, xy_max] = mask_outOfBody(permute(subject{1}(:,:,slic_inds),[2 1 3]));
-    
-    
+   
+   
     % Select a ROI of the 3D volume    
     gr_truth = segm_vol_full(:,:,slic_min+slic_inds-1);
     s = regionprops(gr_truth,'centroid');
     try
-        assert(length(s.Centroid) == 3);
-    catch 
+        assert(size(s.Centroid,1) == 1);
+    catch
         error("Ground truth tumor contains more than 1 connected component");
     end
     tc = round(s.Centroid(1)); tr = round(s.Centroid(2));

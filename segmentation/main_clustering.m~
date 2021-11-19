@@ -21,9 +21,6 @@ machine_type = 'sego_clean';
 % machine_type = 'GPU_clean';
 
 results_folder_name = 'results_test';
-% results_folder_name = 'results_test_kmeans';
-% results_folder_name = 'results_kmeans';
-% results_folder_name = 'results_square_150';
 % results_folder_name = 'results_organ3';
 % results_folder_name = 'results_clean';
 
@@ -58,17 +55,13 @@ roi_radius = 100;  % for a square
 lvl = 150;  % 40  % 70
 wdw = 700;  % 350  % 500
 
-
 org_ids = '3';  % 1-2
 
-take_which_slices = 3;  % % if any num: take num slices; if 'all': take all available slices (max 20 if latest generated)
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%% CHOOSE PLOTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-max_slic_subplot = 3;
-
 show_slices = 'middle';
 % show_slices = 'bottom';
 % show_slices = 'top';
+max_slic_subplot = 6;
 
 plot_clusterCurves = 0;
 
@@ -82,8 +75,8 @@ plot_rab = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%% TO LOAD A SAVED MODEL %%%%%%%%%%%%%%%%%%%%%%%%%
 load_saved_mdl = 0;
 pat = [];
-dic = zeros(100,1);   %!!!%
-jac = zeros(100,1);   %!!!%
+dic = zeros(6,3);   %!!!%
+jac = zeros(6,3);   %!!!%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% NB OF RESTART %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nbr_EM_runs = 1;
@@ -145,7 +138,7 @@ for patient_name = ["HNSCC9"] %,"HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10"]
 for lambda = [0.075]
     
 nb_K_ind = 0;
-for K = [20]   % 150   % 40
+for K = [16]   % 300 %[40,50,60] % number of clusters  % 60
     
     nb_K_ind = nb_K_ind + 1;
     
@@ -160,7 +153,8 @@ for K = [20]   % 150   % 40
     
     %%% Build dataset for a specific patient
     
-    res = build_patient_data(machine_type, patient_nm, take_which_slices, org_ids, roi_radius, max_slic_subplot, show_slices);
+    take_all_slices = 0;  % if 0: take only 8 midle slices; if 1: take all available slices (max 20 if latest generated)
+    res = build_patient_data(machine_type, patient_nm, take_all_slices, org_ids, roi_radius, max_slic_subplot, show_slices);
     
     Y = res.Y; decay_curves = res.decay_curves; gr_truth = res.gr_truth;
     klas_tum = res.klas_tum; lin_obj = res.lin_obj; subj_slic = res.subj_slic; focus = res.focus;
@@ -395,9 +389,7 @@ for K = [20]   % 150   % 40
 
                 
             case('gmm')
-                gmfit = fitgmdist(Curves.ordinates,K,'RegularizationValue',0.1,...
-                                     'Options',statset('MaxIter',1500,'TolFun',1e-6));
-                mixstats.klas = cluster(gmfit,Curves.ordinates);
+                mixmodel = fitgmdist(Curves.ordinates,K,'RegularizationValue',0.1'MaxIter',500,);
                 
             otherwise
                 error("unknown strategy")
@@ -474,11 +466,6 @@ for K = [20]   % 150   % 40
             if ~isempty(fn_save_pdf) && ~load_saved_mdl
                 rdn = num2str(randi(1000));
                 save([fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_Kmeans.mat'],'mixstats')
-            end
-        elseif strcmp(strategy,'gmm')
-            if ~isempty(fn_save_pdf) && ~load_saved_mdl
-                rdn = num2str(randi(1000));
-                save([fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_GMM.mat'],'mixstats')
             end
         else
             if ~isempty(fn_save_pdf)  &&  ~load_saved_mdl

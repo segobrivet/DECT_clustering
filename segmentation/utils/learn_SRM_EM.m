@@ -12,8 +12,6 @@ function [mixModel, mixStats] = learn_SRM_EM(data, K, mixingOption, regressionOp
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 warning off all
 
-% lambda = 0.08;   %1/m; %0.05; %5*1e-1;
-
 V = data.spatialcoord;
 % Curves
 X = data.abscissas;
@@ -38,7 +36,7 @@ best_loglik = -inf;
 EM_run = 1;
 
 while (EM_run <= nbr_EM_runs)
-    if nbr_EM_runs>1,fprintf(1, 'EM run n°  %d \n ',EM_run); end
+    if nbr_EM_runs>1,fprintf(1, 'EM run nï¿½  %d \n ',EM_run); end
     EM_run = EM_run + 1;
     %% EM Initializaiton
     
@@ -51,7 +49,6 @@ while (EM_run <= nbr_EM_runs)
         Alphak =  mixModel.Alphak;
         Mus =  mixModel.Mus;
         R =  mixModel.R;
-%         Theta = mixModel.Theta;  % TODO: useful?
     end
     Betak = mixModel.Betak;
     Sigmak2 = mixModel.Sigmak2;
@@ -68,7 +65,12 @@ while (EM_run <= nbr_EM_runs)
     iter      = 0; % iteration number
     MaxIter   = 300;
     converged = 0;
+%     store_alpha = {};   % ADDED BY SEGO
+%     iter_time = -ones(MaxIter,1);   % ADDED BY SEGO
+    
     while(iter<=MaxIter && ~converged)
+        
+        tic
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %                           %
@@ -198,9 +200,8 @@ while (EM_run <= nbr_EM_runs)
                     R(:,:,k) = R(:,:,k)/nk;
                 end
                 
-%                 Theta(:,:,k) = inv(R(:,:,k));  % TODO: useful?
             end
-        end
+        end        
         %% End of EM
         iter=iter+1;
         
@@ -210,7 +211,10 @@ while (EM_run <= nbr_EM_runs)
         
         stored_lglik = [stored_lglik loglik];
         
-        loglik_old = loglik;
+        loglik_old = loglik;        
+        
+%         store_alpha{iter} = Alphak;   % ADDED BY SEGO
+%         iter_time(iter) = toc;          % ADDED BY SEGO
     end% en of the EM loop
     
     fprintf(1,'End at EM Iteration : %d  log-likelihood: %f \n',iter, loglik);
@@ -254,6 +258,10 @@ while (EM_run <= nbr_EM_runs)
     end
     
 end % En of EM runs
+
+% save('store_alpha.mat','store_alpha')
+% save('iter_time.mat','iter_time')
+
 mixModel = best_mixModel;
 mixStats = best_mixStats;
 [~, mixStats.klas] = max(mixStats.posterior_prob,[],2);
@@ -262,4 +270,3 @@ mixStats = best_mixStats;
 if nbr_EM_runs>1;   fprintf(1,'best loglik:  %f\n',mixStats.loglik); end
 
 end
-
