@@ -28,16 +28,14 @@ results_folder_name = 'results_test';
 % results_folder_name = 'results_clean';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% MODEL OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% strategy = 'FunSRM'; init_kmeans_dep = 1;
+strategy = 'FunSRM'; init_kmeans_dep = 1;
 % strategy = 'ExtraFeat-GMM';
 % strategy = 'kmeans';
-strategy = 'gmm';
+% strategy = 'gmm';
 % strategy = 'imsegkmeans';
 
-mixingOption = 'softmax';
-% mixingOption = 'gaussian';
-
-% lambda = 0.07;
+% mixingOption = 'softmax';
+mixingOption = 'gaussian';
 
 % model = "PRM"; % Polynomial regression mixture
 % model = "SRM"; % Spline regression mixture
@@ -51,8 +49,8 @@ nknots = 10; % fixed number of internal knots, for (b-)spline spatial regression
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% DATA OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ROI size
-% roi_radius = 90;   % for a circle
-roi_radius = 100;  % for a square
+% roi_radius = 90;   % for a circle  % default is 90
+roi_radius = 100;    % for a square  % default is 150
 
 % tissue enhancement window
 lvl = 150;  % 40  % 70
@@ -61,16 +59,16 @@ wdw = 700;  % 350  % 500
 
 org_ids = '3';  % 1-2
 
-take_which_slices = 3;  % % if any num: take num slices; if 'all': take all available slices (max 20 if latest generated)
+take_which_slices = 3;  % if any num: take num tumor slices in algo; if 'all': take all available slices (max 20 if latest generated) % default is 6
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% CHOOSE PLOTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-max_slic_subplot = 3;
+max_slic_subplot = 6;   % max nb of subplots on the same figure
 
-show_slices = 'middle';
+show_slices = 'middle';  % if num slices > num subplots, which slices are we plotting?
 % show_slices = 'bottom';
 % show_slices = 'top';
 
-plot_clusterCurves = 0;
+plot_clusterCurves = 1;
 
 plot_initResults = 0;
 plot_filter3 = 1;
@@ -82,8 +80,8 @@ plot_rab = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%% TO LOAD A SAVED MODEL %%%%%%%%%%%%%%%%%%%%%%%%%
 load_saved_mdl = 0;
 pat = [];
-dic = zeros(100,1);   %!!!%
-jac = zeros(100,1);   %!!!%
+dic = zeros(100,1);
+jac = zeros(100,1);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% NB OF RESTART %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nbr_EM_runs = 1;
@@ -91,6 +89,7 @@ nbr_EM_runs = 1;
 %% end of specifications
 
 
+% % % if load_saved_mdl % % %
 %% To read saved result variables in a folder and plot the images
 % fls = dir(fullfile(results_folder_name,'/HNSCC3_*_mixstats.mat'));
 % for nm = 1:length(fls)
@@ -126,7 +125,6 @@ for patient_name = ["HNSCC9"] %,"HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10"]
     
     pat_ind = pat_ind + 1;
     
-% for patient_name = ["subject8_tumor","HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10","HNSCC11","HNSCC12","HNSCC13","HNSCC15","HNSCC17","HNSCC18","HNSCC26"]
     
 % for patient_name = ["HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10",...
 %         "HNSCC11","HNSCC12","HNSCC13","HNSCC15","HNSCC15A","HNSCC17","HNSCC17A","HNSCC18","HNSCC20",...
@@ -139,13 +137,13 @@ for patient_name = ["HNSCC9"] %,"HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10"]
 %         "HNSCC81","HNSCC82","HNSCC83","HNSCC84","HNSCC85","HNSCC87","HNSCC88","HNSCC89","HNSCC90",...
 %         "HNSCC91","HNSCC92","HNSCC95","HNSCC96","HNSCC97","HNSCC98",...
 %         "HNSCC100","HNSCC101","HNSCC103","HNSCC105","HNSCC106","HNSCC108","HNSCC109"]
-% 		% "HNSCC1","HNSCC10A","HNSCC60","HNSCC102"]
+% 	% data with pb, taken out from all available patients above: "HNSCC1","HNSCC10A","HNSCC60","HNSCC102"
         
         
-for lambda = [0.075]
+for lambda = [0.075]  % default is 0.075
     
 nb_K_ind = 0;
-for K = [20]   % 150   % 40
+for K = [10]      % default for FunSRM is K=40 with square ROI of size 150   % default for imsegkmeans: 150
     
     nb_K_ind = nb_K_ind + 1;
     
@@ -155,7 +153,7 @@ for K = [20]   % 150   % 40
     close all; 
     
     patient_nm = char(patient_name); disp(patient_nm);
-    % fn_save_pdf = '';  % if don't want to save fig as pdf
+%     fn_save_pdf = '';  % if don't want to save fig as pdf
     fn_save_pdf = fullfile(results_folder_name, patient_nm);  % to save fig as pdf
     
     %%% Build dataset for a specific patient
@@ -409,7 +407,7 @@ for K = [20]   % 150   % 40
         % end
 
         elaps_time_clust = toc;
-        fprintf('Elapsed time %f sec \n', elaps_time_clust);
+        fprintf('Elapsed time for clustering algo: %f sec \n', elaps_time_clust);
 
 
     end
@@ -421,7 +419,8 @@ for K = [20]   % 150   % 40
     
     clr = jet(K+round(1/3*K));
     clr = clr(1:K,:);  % this removes red color
-
+    
+    nb_subplot = min(max_slic_subplot,length(slic_show));
     vars.slic_show = slic_show;
     vars.slic_inds_1 = slic_inds(1);
     vars.subj_slic = subj_slic;
@@ -533,13 +532,13 @@ for K = [20]   % 150   % 40
         
         
         %% Plot results on original image
-        
+                
         if plot_initResults
             figure(fig_slic)
 %             vars.max_cl = max_cl;
             vars.match_klas = match_klas;
             show_result_on_img(reco_lbl, vars);
-            sgtitle(sprintf('6 %s slices / %d.   %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), length(match_klas), max_dice, max_jacc),'FontSize',14,'FontWeight','bold')
+            sgtitle(sprintf('%d slices / %d.   %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), length(match_klas), max_dice, max_jacc),'FontSize',14,'FontWeight','bold')
         end
         
         % % With majority filter
@@ -548,7 +547,7 @@ for K = [20]   % 150   % 40
 %             vars.max_cl = max_cl1;
             vars.match_klas = match_klas_filt1;
             show_result_on_img(reco_lbl_filt1, vars);
-            sgtitle(sprintf('6 %s slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), fsz1, fsz1, fsz1, length(match_klas), max_dice_filt1, max_jacc_filt1),'FontSize',14,'FontWeight','bold')
+            sgtitle(sprintf('%d slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), fsz1, fsz1, fsz1, length(match_klas), max_dice_filt1, max_jacc_filt1),'FontSize',14,'FontWeight','bold')
         end
         
         % % With majority filter 2
@@ -557,7 +556,7 @@ for K = [20]   % 150   % 40
 %             vars.max_cl = max_cl2;
             vars.match_klas = match_klas_filt2;
             show_result_on_img(reco_lbl_filt2, vars);
-            sgtitle(sprintf('6 %s slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_dice_filt2, max_jacc_filt2),'FontSize',14,'FontWeight','bold')
+            sgtitle(sprintf('%d slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_dice_filt2, max_jacc_filt2),'FontSize',14,'FontWeight','bold')
         end
         
         if plot_rab
@@ -565,7 +564,7 @@ for K = [20]   % 150   % 40
 %             vars.max_cl = max_cl;
             vars.match_klas = match_klas_filt2;
             show_result_on_img(reco_lbl_filt2, vars);
-            sgtitle(sprintf('6 %s slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_sim2, jacc_array2(max_cl2)),'FontSize',14,'FontWeight','bold')
+            sgtitle(sprintf('%d slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_sim2, jacc_array2(max_cl2)),'FontSize',14,'FontWeight','bold')
         end
         
         
@@ -613,7 +612,7 @@ for K = [20]   % 150   % 40
 %             % plot results
 %             figure(fig_slic4)
 %             show_result_on_img(reco_lbl, vars);
-%             suptitle(sprintf(sprintf('6 %s slices / %d.   Merged  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), length(match_klas), max_dice, max_jacc)))
+%             suptitle(sprintf(sprintf('%d slices / %d.   Merged  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), length(match_klas), max_dice, max_jacc)))
 %         end
 %         
 %         % apply filter
@@ -631,7 +630,7 @@ for K = [20]   % 150   % 40
 %             % plot results
 %             figure(fig_slic5)
 %             show_result_on_img(reco_lbl_filt1, vars);
-%             sgtitle(sprintf('6 %s slices / %d.   Merged  -  With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), fsz1, fsz1, fsz1, length(match_klas_filt1), max_dice_filt1, max_jacc_filt1),'FontSize',14,'FontWeight','bold')
+%             sgtitle(sprintf('%d slices / %d.   Merged  -  With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), fsz1, fsz1, fsz1, length(match_klas_filt1), max_dice_filt1, max_jacc_filt1),'FontSize',14,'FontWeight','bold')
 %         end
         
         
@@ -640,7 +639,7 @@ for K = [20]   % 150   % 40
         if ~load_saved_mdl && plot_clusterCurves
             
             Curves.decay_curves = decay_curves;
-            [fig_normCurves, fig_decayCurves, fig_loglik] = show_SRM_results_new(Curves, mixmodel, mixstats, model, max_cl, clr);
+            [fig_normCurves, fig_decayCurves, fig_loglik] = show_SRM_results_new(Curves, mixmodel, mixstats, model, match_klas, clr);
             
         end
         

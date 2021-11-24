@@ -1,4 +1,4 @@
-function [fig_normCurves, fig_decayCurves, fig_loglik] = show_SRM_results_new(Curves, mixmodel, mixstats, model, max_cl, clr)
+function [fig_normCurves, fig_decayCurves, fig_loglik] = show_SRM_results_new(Curves, mixmodel, mixstats, model, match_klas, clr)
 
 % plot the results of a EM for spatial Regression Mixtures (polynomial,
 % Spline, B-Spline, RM with/out mixed random effects)
@@ -10,7 +10,8 @@ T = 1:size(Curves.ordinates,2);
 Y = Curves.ordinates;
 decay_curves = Curves.decay_curves;
 %[n, m] = size(Y);
-K = size(mixmodel.Muk, 1);  % = size(mixstats.Muk, 2);
+% K = size(mixmodel.Muk, 1); 
+K = size(mixstats.Muk, 2);
 % original data
 
 % figure, plot(t,Y','linewidth',0.001);  %'r-',
@@ -24,6 +25,11 @@ K = size(mixmodel.Muk, 1);  % = size(mixstats.Muk, 2);
 %
 colors = {'r','b','g','m','c','k','y','r--','b--','g--','m--','c--','k--','y--',...
     'r-x','b-x','g-x','m-x','c-x','k-x','y-x', 'r.', 'b.','g.','m.','c.','k.','y.'};
+
+nk = length(match_klas);
+cmap_tum = hot(8+nk);
+cmap_tum = cmap_tum(2:2+nk-1,:);
+
 % for k=1:K
 %     figure;
 %     sigmak2 = sqrt(mixmodel.Sigmak2(k));
@@ -79,8 +85,9 @@ for k=1:K %min(K,63)
     sigmak2 = sqrt(mixmodel.Sigmak2(k));
     Ic_k = [mixstats.Muk(:,k)-2*sigmak2 mixstats.Muk(:,k)+2*sigmak2];
     axes(ha(k));
-    if k == max_cl
-        plot(T,Y(mixstats.klas==k,:)','color',[1 0 0],'linewidth',0.001);
+    tum_idx = find(k==match_klas);
+    if ~isempty(tum_idx)
+        plot(T,Y(mixstats.klas==k,:)','color',cmap_tum(tum_idx,:),'linewidth',0.001);
         ylabel(['TUMOR - Cl ',num2str(k)],'FontWeight','bold');
     else
         plot(T,Y(mixstats.klas==k,:)','color',clr(k,:),'linewidth',0.001);
@@ -112,8 +119,9 @@ ha = set_subplot_grid(K);
 
 for k=1:K  %min(K,63)
     axes(ha(k));
-    if k == max_cl
-        plot(T,decay_curves(mixstats.klas==k,:)','color',[1 0 0],'linewidth',0.001);
+    tum_idx = find(k==match_klas);
+    if ~isempty(tum_idx)
+        plot(T,decay_curves(mixstats.klas==k,:)','color',cmap_tum(tum_idx,:),'linewidth',0.001);
         ylabel(['TUMOR - Cl ',num2str(k)],'FontWeight','bold');
     else
         plot(T,decay_curves(mixstats.klas==k,:)','color',clr(k,:),'linewidth',0.001);
@@ -124,6 +132,7 @@ for k=1:K  %min(K,63)
     ylim([min(decay_curves,[],'all') max(decay_curves,[],'all')]);
 end
 box on;
+gcf
 suptitle(['Energy decay curves per cluster - ', char(model)])
 
 for k = (K+1):length(ha)
