@@ -1,6 +1,10 @@
 
 function show_result_on_img_kmeans(T, img_4D, focus, vars)
 
+nk = length(vars.match_klas);
+cmap = hot(8+nk);
+cmap = cmap(2:2+nk-1,:);
+
 for i=1:min(vars.max_slic_subplot,length(vars.slic_show))
     
     slic_r = img_4D(:,:,vars.slic_show(i),1);
@@ -9,14 +13,19 @@ for i=1:min(vars.max_slic_subplot,length(vars.slic_show))
     subplot(vars.len_sp,4,2*i);
     for cl_id=1:vars.K
         cc = find(T(:,:,i) == cl_id);
-        if cl_id == vars.max_cl
-            slic_r(cc) = 1; slic_g(cc) = 0; slic_b(cc) = 0;  % red
+        tum_idx = find(cl_id==vars.match_klas);
+        if ~isempty(tum_idx)  % shade of red colors
+            slic_r(cc) = cmap(tum_idx,1);
+            slic_g(cc) = cmap(tum_idx,2);
+            slic_b(cc) = cmap(tum_idx,3);
+%         if cl_id == vars.max_cl
+%             slic_r(cc) = 1; slic_g(cc) = 0; slic_b(cc) = 0;  % red
         else
             slic_r(cc) = vars.clr(cl_id,1); slic_g(cc) = vars.clr(cl_id,2); slic_b(cc) = vars.clr(cl_id,3);
         end
-        slic_rgb = cat(3,slic_r, slic_g, slic_b);
     end
-    imshow(slic_rgb.*focus(:,:,vars.slic_show(i)))
+    slic_rgb = cat(3,slic_r, slic_g, slic_b);
+    imshow(slic_rgb.*focus(:,:,i))
     hold on
     plot_tumor_contour(vars.tumor_contour_list{i}, [vars.rmin, vars.cmin], [0.99,0.99,0.99]);
 end

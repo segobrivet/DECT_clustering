@@ -9,9 +9,9 @@ match_klas = [];
 for cl_id=1:K
     curr_klas = (klas == cl_id);
     
-    intrs = sum(klas_tum & curr_klas);
+    intrs = sum(klas_tum & curr_klas, 'all');
     
-    if intrs > sum(klas_tum)*0.05   % if cluster intersects at least 5% of Ground Truth
+    if intrs > sum(klas_tum,'all')*0.05   % if cluster intersects at least 5% of Ground Truth
         int_score = [int_score, intrs];
         match_klas = [match_klas, cl_id];
     end

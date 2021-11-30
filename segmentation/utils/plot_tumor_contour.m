@@ -7,7 +7,7 @@ if ~isempty(tumor_contour)
         col_tum = tum_cont(:,1)-xy_min(1)+1;
         row_tum = tum_cont(:,2)-xy_min(2)+1;
         for i=1:length(row_tum) % tumor in blue
-            plot(row_tum(i),col_tum(i),'.','color',clr,'MarkerSize',10);  % light blue: [0,0.5,1], white: [0.99,0.99,0.99]
+            plot(row_tum(i),col_tum(i),'.','color',clr,'MarkerSize',6);  % light blue: [0,0.5,1], white: [0.99,0.99,0.99]
         end
     end
 end

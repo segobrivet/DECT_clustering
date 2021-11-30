@@ -23,8 +23,8 @@ for i=1:min(vars.max_slic_subplot,length(vars.slic_show))
         else
             slic_r(cc) = vars.clr(cl_id,1); slic_g(cc) = vars.clr(cl_id,2); slic_b(cc) = vars.clr(cl_id,3);
         end
-        slic_rgb = cat(3,slic_r, slic_g, slic_b);
     end
+    slic_rgb = cat(3,slic_r, slic_g, slic_b);
     imshow(slic_rgb(vars.rmin:vars.rmax,vars.cmin:vars.cmax,:),[])
     hold on
     plot_tumor_contour(vars.tumor_contour_list{i}, [vars.rmin, vars.cmin], [0.99,0.99,0.99]);

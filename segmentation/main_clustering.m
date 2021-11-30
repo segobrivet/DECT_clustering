@@ -20,10 +20,10 @@ machine_type = 'sego_clean';
 % machine_type = 'GPU';
 % machine_type = 'GPU_clean';
 
-results_folder_name = 'results_test';
+% results_folder_name = 'results_sft';
 % results_folder_name = 'results_test_kmeans';
 % results_folder_name = 'results_kmeans';
-% results_folder_name = 'results_square_150';
+results_folder_name = 'results_square_150';
 % results_folder_name = 'results_organ3';
 % results_folder_name = 'results_clean';
 
@@ -50,7 +50,7 @@ nknots = 10; % fixed number of internal knots, for (b-)spline spatial regression
 %%%%%%%%%%%%%%%%%%%%%%%%%%% DATA OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ROI size
 % roi_radius = 90;   % for a circle  % default is 90
-roi_radius = 100;    % for a square  % default is 150
+roi_radius = 150;    % for a square  % default is 150
 
 % tissue enhancement window
 lvl = 150;  % 40  % 70
@@ -59,7 +59,7 @@ wdw = 700;  % 350  % 500
 
 org_ids = '3';  % 1-2
 
-take_which_slices = 3;  % if any num: take num tumor slices in algo; if 'all': take all available slices (max 20 if latest generated) % default is 6
+take_which_slices = 8;  % if any num: take num tumor slices in algo; if 'all': take all available slices (max 20 if latest generated) % default is 6
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% CHOOSE PLOTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 max_slic_subplot = 6;   % max nb of subplots on the same figure
@@ -76,9 +76,10 @@ plot_filter5 = 0;
 plot_initMerge = 0;
 plot_mergeFilter3 = 0;
 plot_rab = 0;
+plot_subfigure = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% TO LOAD A SAVED MODEL %%%%%%%%%%%%%%%%%%%%%%%%%
-load_saved_mdl = 0;
+load_saved_mdl = 1;
 pat = [];
 dic = zeros(100,1);
 jac = zeros(100,1);
@@ -91,18 +92,19 @@ nbr_EM_runs = 1;
 
 % % % if load_saved_mdl % % %
 %% To read saved result variables in a folder and plot the images
-% fls = dir(fullfile(results_folder_name,'/HNSCC3_*_mixstats.mat'));
-% for nm = 1:length(fls)
-% %     imsegkmeanspath = fullfile(results_folder_name,fls(nm).name);
-%     mixstatspath = fullfile(results_folder_name,fls(nm).name);
+fls = dir(fullfile(results_folder_name,'/HNSCC9_348__ROI150_cl40_lbda0.075_mixstats_red.mat'));
+
+for nm = 1:length(fls)
+%     imsegkmeanspath = fullfile(results_folder_name,fls(nm).name);
+    mixstatspath = fullfile(results_folder_name,fls(nm).name);
 %     mixmodelpath = [mixstatspath(1:end-12),'mixmodel.mat'];  % (1:end-17)
-%     str = split(fls(nm).name,'_');
-%     patient_name = str{1}; rdn = str{2};
-%     roi_radius = str{4}; roi_radius = str2num(roi_radius(4:end));
-%     K = str{5}; K = str2num(K(3:end));
-%     lbda = str{6}; lbda = str2num(lbda(5:end));
-%     
-% for lambda = lbda
+    str = split(fls(nm).name,'_');
+    patient_name = str{1}; rdn = str{2};
+    roi_radius = str{4}; roi_radius = str2num(roi_radius(4:end));
+    K = str{5}; K = str2num(K(3:end));
+    lbda = str{6}; lbda = str2num(lbda(5:end));
+    
+for lambda = lbda
 
 
 % % for visualising init MyKmeans
@@ -121,7 +123,7 @@ nbr_EM_runs = 1;
 %%
 
 pat_ind = 0;
-for patient_name = ["HNSCC9"] %,"HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10"]
+% for patient_name = ["HNSCC9"] %,"HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10"]
     
     pat_ind = pat_ind + 1;
     
@@ -140,10 +142,10 @@ for patient_name = ["HNSCC9"] %,"HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10"]
 % 	% data with pb, taken out from all available patients above: "HNSCC1","HNSCC10A","HNSCC60","HNSCC102"
         
         
-for lambda = [0.075]  % default is 0.075
+% for lambda = [0.075]  % default is 0.075
     
 nb_K_ind = 0;
-for K = [10]      % default for FunSRM is K=40 with square ROI of size 150   % default for imsegkmeans: 150
+% for K = [10]      % default for FunSRM is K=40 with square ROI of size 150   % default for imsegkmeans: 150
     
     nb_K_ind = nb_K_ind + 1;
     
@@ -297,12 +299,12 @@ for K = [10]      % default for FunSRM is K=40 with square ROI of size 150   % d
                 mixstats.Muk = sol_km.muk;
                 
             otherwise
-                load(mixmodelpath);
-                load(mixstatspath);
-
+%                 load(mixmodelpath);
 %                 load(mixstatspath);
-%                 mixstats.klas = mixstats_red.klas;
-%                 mixstats.Muk = mixstats_red.Muk;
+
+                load(mixstatspath);
+                mixstats.klas = mixstats_red.klas;
+                mixstats.Muk = mixstats_red.Muk;
         end
 
     else
@@ -643,6 +645,22 @@ for K = [10]      % default for FunSRM is K=40 with square ROI of size 150   % d
             
         end
         
+        if plot_subfigure
+            i = 3;
+            
+%             fig_slicOrig = figure('units','pixels','outerposition',[0 0 1500 1500]); 
+%             imshow(slics(:,:,slic_show(i)),[])
+%             hold on
+%             plot_tumor_contour(tumor_contour_list{i}, [rmin, cmin], [0,0.5,1]);
+%             save_pdf(fig_slicOrig,[fn_save_pdf,'__ROI',num2str(roi_radius),'_onlySlic',num2str(i),'.pdf']);
+
+        
+            fig_subfig = figure('units','pixels','outerposition',[0 0 900 900]); 
+            vars.match_klas = match_klas_filt1;
+            show_result_one_subfigure(reco_lbl_filt1, vars, i);
+            save_pdf(fig_subfig,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),...
+                                '_lbda',num2str(lambda),'_filter',num2str(fsz1),'onlySlic',num2str(i),'.pdf']);
+        end
 
     
         %% Save image in pdf
@@ -696,7 +714,7 @@ for K = [10]      % default for FunSRM is K=40 with square ROI of size 150   % d
     dic(pat_ind,nb_K_ind) = max_dice_filt1;
     jac(pat_ind,nb_K_ind) = max_jacc_filt1;
 
-end  % end K
+% end  % end K
     
 end  % end lambda
 
