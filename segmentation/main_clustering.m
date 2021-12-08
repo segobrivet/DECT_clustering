@@ -22,21 +22,22 @@ machine_type = 'sego_clean';
 
 % results_folder_name = 'results_sft';
 % results_folder_name = 'results_test_kmeans';
-results_folder_name = 'results_kmeans';
+% results_folder_name = 'results_kmeans';
 % results_folder_name = 'results_square_150';
 % results_folder_name = 'results_organ3';
 % results_folder_name = 'results_clean';
 % results_folder_name = 'results_gmm';
+results_folder_name = 'results_CMM-sft';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% MODEL OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % strategy = 'FunSRM'; init_kmeans_dep = 1;
-% strategy = 'ExtraFeat-GMM';
+strategy = 'ExtraFeat-GMM';
 % strategy = 'kmeans';
 % strategy = 'gmm';
-strategy = 'imsegkmeans';
+% strategy = 'imsegkmeans';
 
-mixingOption = 'softmax';
-% mixingOption = 'gaussian';
+% mixingOption = 'softmax';
+mixingOption = 'gaussian';
 
 % model = "PRM"; % Polynomial regression mixture
 % model = "SRM"; % Spline regression mixture
@@ -51,7 +52,7 @@ nknots = 10; % fixed number of internal knots, for (b-)spline spatial regression
 %%%%%%%%%%%%%%%%%%%%%%%%%%% DATA OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ROI size
 % roi_radius = 90;   % for a circle  % default is 90
-roi_radius = 150;    % for a square  % default is 150
+roi_radius = 100;    % for a square  % default is 150
 
 % tissue enhancement window
 lvl = 150;  % 40  % 70
@@ -60,7 +61,7 @@ wdw = 700;  % 350  % 500
 
 org_ids = '3';  % 1-2
 
-take_which_slices = 8;  % if any num: take num tumor slices in algo; if 'all': take all available slices (max 20 if latest generated) % default is 6
+take_which_slices = 3;  % if any num: take num tumor slices in algo; if 'all': take all available slices (max 20 if latest generated) % default is 6
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% CHOOSE PLOTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 max_slic_subplot = 6;   % max nb of subplots on the same figure
@@ -71,19 +72,19 @@ show_slices = 'middle';  % if num slices > num subplots, which slices are we plo
 
 plot_clusterCurves = 0;
 
-plot_initResults = 0;
+plot_initResults = 1;
 plot_filter3 = 0;
 plot_filter5 = 0;
 plot_initMerge = 0;
 plot_mergeFilter3 = 0;
-plot_rab = 1;
+plot_rab = 0;
 plot_subfigure = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% TO LOAD A SAVED MODEL %%%%%%%%%%%%%%%%%%%%%%%%%
-load_saved_mdl = 1;
+load_saved_mdl = 0;
 pat = [];
-dic = zeros(100,1);
-jac = zeros(100,1);
+dic = zeros(91,1);
+jac = zeros(91,1);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% NB OF RESTART %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nbr_EM_runs = 1;
@@ -93,20 +94,19 @@ nbr_EM_runs = 1;
 
 % % % if load_saved_mdl % % %
 %% To read saved result variables in a folder and plot the images
-fls = dir(fullfile(results_folder_name,'/HNSCC5_*_mixstats_red.mat'));
-
-for nm = 1:length(fls)
-    imsegkmeanspath = fullfile(results_folder_name,fls(nm).name);
-%     mixstatspath = fullfile(results_folder_name,fls(nm).name);
-%     mixmodelpath = [mixstatspath(1:end-12),'mixmodel.mat'];  % (1:end-17)
-    str = split(fls(nm).name,'_');
-    patient_name = str{1}; rdn = str{2};
-    roi_radius = str{4}; roi_radius = str2num(roi_radius(4:end));
-    K = str{5}; K = str2num(K(3:end));
+% fls = dir(fullfile(results_folder_name,'/HNSCC5_*_mixstats_red.mat'));
+% 
+% for nm = 1:length(fls)
+%     imsegkmeanspath = fullfile(results_folder_name,fls(nm).name);
+% %     mixstatspath = fullfile(results_folder_name,fls(nm).name);
+% %     mixmodelpath = [mixstatspath(1:end-12),'mixmodel.mat'];  % (1:end-17)
+%     str = split(fls(nm).name,'_');
+%     patient_name = str{1}; rdn = str{2};
+%     roi_radius = str{4}; roi_radius = str2num(roi_radius(4:end));
+%     K = str{5}; K = str2num(K(3:end));
 %     lbda = str{6}; lbda = str2num(lbda(5:end));
-    lbda = 0.075;
-    
-for lambda = lbda
+%     
+% for lambda = lbda
 
 
 % % for visualising init MyKmeans
@@ -135,10 +135,10 @@ for lambda = lbda
 
 %%
 
-% for lambda = [0.075]  % default is 0.075
+for lambda = [0.075]  % default is 0.075
     
 pat_ind = 0;
-% for patient_name = ["HNSCC5","HNSCC8","HNSCC9","HNSCC10"] %,"HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10"]
+for patient_name = ["HNSCC9"] %,"HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10"]
     
 % for patient_name = ["HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10",...
 %         "HNSCC11","HNSCC12","HNSCC13","HNSCC15","HNSCC15A","HNSCC17","HNSCC17A","HNSCC18","HNSCC20",...
@@ -157,7 +157,7 @@ pat_ind = 0;
         
     
 nb_K_ind = 0;
-for K = [150]      % default for FunSRM is K=40 with square ROI of size 150   % default for imsegkmeans: 150
+for K = [20]      % default for FunSRM is K=40 with square ROI of size 150   % default for imsegkmeans: 150
     
     nb_K_ind = nb_K_ind + 1;
     
