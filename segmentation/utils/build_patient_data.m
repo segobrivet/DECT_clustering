@@ -170,6 +170,7 @@ function res = build_patient_data(machine_type, patient_nm, take_which_slices, o
     res.slic_min = slic_min;
     res.slic_min_idx = slic_inds(1)+slic_min-2;
     res.focus = focus;
+    res.subject = subject;
     
     end
     

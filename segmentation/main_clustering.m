@@ -20,20 +20,20 @@ machine_type = 'sego_clean';
 % machine_type = 'GPU';
 % machine_type = 'GPU_clean';
 
-results_folder_name = 'results_sft';
+% results_folder_name = 'results_sft';
 % results_folder_name = 'results_test_kmeans';
-% results_folder_name = 'results_kmeans';
+results_folder_name = 'results_kmeans';
 % results_folder_name = 'results_square_150';
 % results_folder_name = 'results_organ3';
 % results_folder_name = 'results_clean';
 % results_folder_name = 'results_gmm';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% MODEL OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-strategy = 'FunSRM'; init_kmeans_dep = 1;
+% strategy = 'FunSRM'; init_kmeans_dep = 1;
 % strategy = 'ExtraFeat-GMM';
 % strategy = 'kmeans';
 % strategy = 'gmm';
-% strategy = 'imsegkmeans';
+strategy = 'imsegkmeans';
 
 mixingOption = 'softmax';
 % mixingOption = 'gaussian';
@@ -51,7 +51,7 @@ nknots = 10; % fixed number of internal knots, for (b-)spline spatial regression
 %%%%%%%%%%%%%%%%%%%%%%%%%%% DATA OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ROI size
 % roi_radius = 90;   % for a circle  % default is 90
-roi_radius = 100;    % for a square  % default is 150
+roi_radius = 150;    % for a square  % default is 150
 
 % tissue enhancement window
 lvl = 150;  % 40  % 70
@@ -60,7 +60,7 @@ wdw = 700;  % 350  % 500
 
 org_ids = '3';  % 1-2
 
-take_which_slices = 6;  % if any num: take num tumor slices in algo; if 'all': take all available slices (max 20 if latest generated) % default is 6
+take_which_slices = 8;  % if any num: take num tumor slices in algo; if 'all': take all available slices (max 20 if latest generated) % default is 6
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% CHOOSE PLOTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 max_slic_subplot = 6;   % max nb of subplots on the same figure
@@ -71,16 +71,16 @@ show_slices = 'middle';  % if num slices > num subplots, which slices are we plo
 
 plot_clusterCurves = 0;
 
-plot_initResults = 1;
-plot_filter3 = 1;
+plot_initResults = 0;
+plot_filter3 = 0;
 plot_filter5 = 0;
 plot_initMerge = 0;
 plot_mergeFilter3 = 0;
-plot_rab = 0;
+plot_rab = 1;
 plot_subfigure = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% TO LOAD A SAVED MODEL %%%%%%%%%%%%%%%%%%%%%%%%%
-load_saved_mdl = 0;
+load_saved_mdl = 1;
 pat = [];
 dic = zeros(100,1);
 jac = zeros(100,1);
@@ -93,19 +93,20 @@ nbr_EM_runs = 1;
 
 % % % if load_saved_mdl % % %
 %% To read saved result variables in a folder and plot the images
-% fls = dir(fullfile(results_folder_name,'/HNSCC9_*__ROI150_cl40_lbda0.075_mixstats_red.mat'));
-% 
-% for nm = 1:length(fls)
-% %     imsegkmeanspath = fullfile(results_folder_name,fls(nm).name);
+fls = dir(fullfile(results_folder_name,'/HNSCC5_*_mixstats_red.mat'));
+
+for nm = 1:length(fls)
+    imsegkmeanspath = fullfile(results_folder_name,fls(nm).name);
 %     mixstatspath = fullfile(results_folder_name,fls(nm).name);
-% %     mixmodelpath = [mixstatspath(1:end-12),'mixmodel.mat'];  % (1:end-17)
-%     str = split(fls(nm).name,'_');
-%     patient_name = str{1}; rdn = str{2};
-%     roi_radius = str{4}; roi_radius = str2num(roi_radius(4:end));
-%     K = str{5}; K = str2num(K(3:end));
+%     mixmodelpath = [mixstatspath(1:end-12),'mixmodel.mat'];  % (1:end-17)
+    str = split(fls(nm).name,'_');
+    patient_name = str{1}; rdn = str{2};
+    roi_radius = str{4}; roi_radius = str2num(roi_radius(4:end));
+    K = str{5}; K = str2num(K(3:end));
 %     lbda = str{6}; lbda = str2num(lbda(5:end));
-%     
-% for lambda = lbda
+    lbda = 0.075;
+    
+for lambda = lbda
 
 
 % % for visualising init MyKmeans
@@ -134,10 +135,10 @@ nbr_EM_runs = 1;
 
 %%
 
-for lambda = [0.075]  % default is 0.075
+% for lambda = [0.075]  % default is 0.075
     
 pat_ind = 0;
-for patient_name = ["HNSCC5","HNSCC8","HNSCC9","HNSCC10"] %,"HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10"]
+% for patient_name = ["HNSCC5","HNSCC8","HNSCC9","HNSCC10"] %,"HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10"]
     
 % for patient_name = ["HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10",...
 %         "HNSCC11","HNSCC12","HNSCC13","HNSCC15","HNSCC15A","HNSCC17","HNSCC17A","HNSCC18","HNSCC20",...
@@ -297,7 +298,7 @@ for K = [150]      % default for FunSRM is K=40 with square ROI of size 150   % 
                 img_4D = zeros(rmax-rmin+1, cmax-cmin+1, length(slic_inds), 3);
                 kev_idx = 1;
                 for kev=[1,11,21]
-                    img_4D(:,:,:,kev_idx) = single(permute(map_to_0_1(subject{kev}(cmin:cmax,rmin:rmax,slic_inds)), [2 1 3]));  % .*focus
+                    img_4D(:,:,:,kev_idx) = single(permute(map_to_0_1(res.subject{kev}(cmin:cmax,rmin:rmax,slic_inds)), [2 1 3]));  % .*focus
                     kev_idx = kev_idx+1;
                 end
                 
@@ -400,14 +401,14 @@ for K = [150]      % default for FunSRM is K=40 with square ROI of size 150   % 
                 img_4D = zeros(rmax-rmin+1, cmax-cmin+1, length(slic_inds), 3);
                 kev_idx = 1;
                 for kev=[1,11,21]
-                    img_4D(:,:,:,kev_idx) = single(permute(map_to_0_1(subject{kev}(cmin:cmax,rmin:rmax,slic_inds)), [2 1 3]));  % .*focus
+                    img_4D(:,:,:,kev_idx) = single(permute(map_to_0_1(res.subject{kev}(cmin:cmax,rmin:rmax,slic_inds)), [2 1 3]));  % .*focus
                     kev_idx = kev_idx+1;
                 end
                 [X,Y,Z] = meshgrid(1:size(img_4D,2),1:size(img_4D,1),(1:size(img_4D,3)));  % Z *1 or *5 (coord spacing) gives equal results
                 % featureSet = cat(4,img_4D, X, Y, Z);
                 featureSet = cat(4,img_4D, imgaussfilt3(single(img_4D(:,:,:,1)),1), X, Y, Z);    % imgaussfilt .*focus
 
-                T = imsegkmeans3(featureSet, K, 'NormalizeInput',true);   %-- KMEANS --%
+                mixstats_red.T = imsegkmeans3(featureSet, K, 'NormalizeInput',true);   %-- KMEANS --%
 
                 
             case('gmm')
@@ -462,21 +463,22 @@ for K = [150]      % default for FunSRM is K=40 with square ROI of size 150   % 
 
         case('imsegkmeans')
 
-            [dice_array, jacc_array] = compute_simi_scores(T, logical(segm_vol_full(rmin:rmax,cmin:cmax,slic_min+slic_inds-1)), K);
-            [max_dice, max_cl] = max(dice_array);
-            vars.max_cl = max_cl;
+            [max_dice, max_jacc, match_klas] = compute_best_dicjac(logical(gr_truth(rmin:rmax,cmin:cmax,:)), mixstats_red.T, K);
+            vars.match_klas = match_klas;
             
             if plot_rab
                 figure(fig_slic6);
-                show_result_on_img_kmeans(T, img_4D, focus(rmin:rmax,cmin:cmax,slic_show), vars)
-                suptitle(sprintf('6 %s slices / %d.   Best cluster: Dice = %0.3f, IoU = %0.3f', show_slices, length(slic_inds), max_dice, jacc_array(max_cl)))
+                show_result_on_img_kmeans(mixstats_red.T, img_4D, focus(rmin:rmax,cmin:cmax,slic_show), vars)
+                suptitle(sprintf('%d slices / %d.   Best cluster: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), max_dice, max_jacc))
             end
             
             
             if ~isempty(fn_save_pdf)
                 if ~load_saved_mdl
                     rdn = num2str(randi(1000));
-                    save([fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_imsegkmeans.mat'],'T')
+                    mixstats_red.dice = max_dice;
+                    mixstats_red.elaps_time = elaps_time_clust;
+                    save([fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_imsegkmeans_mixstats_red.mat'],'mixstats_red')
                 end
                 if plot_rab
                     savefig(fig_slic6,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_imsegkmeans']);
@@ -510,7 +512,7 @@ for K = [150]      % default for FunSRM is K=40 with square ROI of size 150   % 
 
 %         % Build tumor class label map
 %         lin_tum = find(gr_truth);  % tumor;
-%         klas_tum = ismember(sub2ind(size(segm_vol_full(:,:,slic_inds)), coord(:,1), coord(:,2), coord(:,3)-slic_inds(1)+1),lin_tum);
+%         klas_tum = ismember(sub2ind(size((:,:,slic_inds)), coord(:,1), coord(:,2), coord(:,3)-slic_inds(1)+1),lin_tum);
            
         % Reconstruct results label map as 3D volume
         reco_lbl = zeros(size(gr_truth));
@@ -579,13 +581,13 @@ for K = [150]      % default for FunSRM is K=40 with square ROI of size 150   % 
             sgtitle(sprintf('%d slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_dice_filt2, max_jacc_filt2),'FontSize',14,'FontWeight','bold');
         end
         
-        if plot_rab
-            figure(fig_slic6)
-%             vars.max_cl = max_cl;
-            vars.match_klas = match_klas_filt2;
-            show_result_on_img(reco_lbl_filt2, vars);
-            sgtitle(sprintf('%d slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_sim2, jacc_array2(max_cl2)),'FontSize',14,'FontWeight','bold');
-        end
+%         if plot_rab
+%             figure(fig_slic6)
+% %             vars.max_cl = max_cl;
+%             vars.match_klas = match_klas_filt2;
+%             show_result_on_img(reco_lbl_filt2, vars);
+%             sgtitle(sprintf('%d slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_sim2, jacc_array2(max_cl2)),'FontSize',14,'FontWeight','bold');
+%         end
         
         
         %% Merge close clusters
