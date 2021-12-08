@@ -70,8 +70,6 @@ while (EM_run <= nbr_EM_runs)
     
     while(iter<=MaxIter && ~converged)
         
-        tic
-        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %                           %
         %       E-Step              %

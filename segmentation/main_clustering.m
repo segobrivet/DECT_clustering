@@ -20,12 +20,13 @@ machine_type = 'sego_clean';
 % machine_type = 'GPU';
 % machine_type = 'GPU_clean';
 
-% results_folder_name = 'results_sft';
+results_folder_name = 'results_sft';
 % results_folder_name = 'results_test_kmeans';
 % results_folder_name = 'results_kmeans';
-results_folder_name = 'results_square_150';
+% results_folder_name = 'results_square_150';
 % results_folder_name = 'results_organ3';
 % results_folder_name = 'results_clean';
+% results_folder_name = 'results_gmm';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% MODEL OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 strategy = 'FunSRM'; init_kmeans_dep = 1;
@@ -34,8 +35,8 @@ strategy = 'FunSRM'; init_kmeans_dep = 1;
 % strategy = 'gmm';
 % strategy = 'imsegkmeans';
 
-% mixingOption = 'softmax';
-mixingOption = 'gaussian';
+mixingOption = 'softmax';
+% mixingOption = 'gaussian';
 
 % model = "PRM"; % Polynomial regression mixture
 % model = "SRM"; % Spline regression mixture
@@ -50,7 +51,7 @@ nknots = 10; % fixed number of internal knots, for (b-)spline spatial regression
 %%%%%%%%%%%%%%%%%%%%%%%%%%% DATA OPTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ROI size
 % roi_radius = 90;   % for a circle  % default is 90
-roi_radius = 150;    % for a square  % default is 150
+roi_radius = 100;    % for a square  % default is 150
 
 % tissue enhancement window
 lvl = 150;  % 40  % 70
@@ -59,7 +60,7 @@ wdw = 700;  % 350  % 500
 
 org_ids = '3';  % 1-2
 
-take_which_slices = 8;  % if any num: take num tumor slices in algo; if 'all': take all available slices (max 20 if latest generated) % default is 6
+take_which_slices = 6;  % if any num: take num tumor slices in algo; if 'all': take all available slices (max 20 if latest generated) % default is 6
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% CHOOSE PLOTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 max_slic_subplot = 6;   % max nb of subplots on the same figure
@@ -68,18 +69,18 @@ show_slices = 'middle';  % if num slices > num subplots, which slices are we plo
 % show_slices = 'bottom';
 % show_slices = 'top';
 
-plot_clusterCurves = 1;
+plot_clusterCurves = 0;
 
-plot_initResults = 0;
+plot_initResults = 1;
 plot_filter3 = 1;
 plot_filter5 = 0;
 plot_initMerge = 0;
 plot_mergeFilter3 = 0;
 plot_rab = 0;
-plot_subfigure = 1;
+plot_subfigure = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% TO LOAD A SAVED MODEL %%%%%%%%%%%%%%%%%%%%%%%%%
-load_saved_mdl = 1;
+load_saved_mdl = 0;
 pat = [];
 dic = zeros(100,1);
 jac = zeros(100,1);
@@ -92,19 +93,19 @@ nbr_EM_runs = 1;
 
 % % % if load_saved_mdl % % %
 %% To read saved result variables in a folder and plot the images
-fls = dir(fullfile(results_folder_name,'/HNSCC9_348__ROI150_cl40_lbda0.075_mixstats_red.mat'));
-
-for nm = 1:length(fls)
-%     imsegkmeanspath = fullfile(results_folder_name,fls(nm).name);
-    mixstatspath = fullfile(results_folder_name,fls(nm).name);
-%     mixmodelpath = [mixstatspath(1:end-12),'mixmodel.mat'];  % (1:end-17)
-    str = split(fls(nm).name,'_');
-    patient_name = str{1}; rdn = str{2};
-    roi_radius = str{4}; roi_radius = str2num(roi_radius(4:end));
-    K = str{5}; K = str2num(K(3:end));
-    lbda = str{6}; lbda = str2num(lbda(5:end));
-    
-for lambda = lbda
+% fls = dir(fullfile(results_folder_name,'/HNSCC9_*__ROI150_cl40_lbda0.075_mixstats_red.mat'));
+% 
+% for nm = 1:length(fls)
+% %     imsegkmeanspath = fullfile(results_folder_name,fls(nm).name);
+%     mixstatspath = fullfile(results_folder_name,fls(nm).name);
+% %     mixmodelpath = [mixstatspath(1:end-12),'mixmodel.mat'];  % (1:end-17)
+%     str = split(fls(nm).name,'_');
+%     patient_name = str{1}; rdn = str{2};
+%     roi_radius = str{4}; roi_radius = str2num(roi_radius(4:end));
+%     K = str{5}; K = str2num(K(3:end));
+%     lbda = str{6}; lbda = str2num(lbda(5:end));
+%     
+% for lambda = lbda
 
 
 % % for visualising init MyKmeans
@@ -120,13 +121,23 @@ for lambda = lbda
 %     rdn = str{3}; rdn = rdn(1:end-4);
 % for lambda = 0.07
 
+
+% % for visualising GMM
+% fls = dir(fullfile(results_folder_name,'/HNSCC10_*__gmm_ROI100_cl150_mixstats_red.mat'));
+% for nm = 1:length(fls)
+%     mixstatspath = fullfile(results_folder_name,fls(nm).name);
+%     mixmodelpath = [mixstatspath(1:end-16),'mixmodel.mat'];
+%     str = split(fls(nm).name,'_');
+%     patient_name = str{1}; rdn = str{2};
+%     roi_radius = str{5}; roi_radius = str2num(roi_radius(4:end));
+%     K = str{6}; K = str2num(K(3:end));
+
 %%
 
+for lambda = [0.075]  % default is 0.075
+    
 pat_ind = 0;
-% for patient_name = ["HNSCC9"] %,"HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10"]
-    
-    pat_ind = pat_ind + 1;
-    
+for patient_name = ["HNSCC5","HNSCC8","HNSCC9","HNSCC10"] %,"HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10"]
     
 % for patient_name = ["HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10",...
 %         "HNSCC11","HNSCC12","HNSCC13","HNSCC15","HNSCC15A","HNSCC17","HNSCC17A","HNSCC18","HNSCC20",...
@@ -141,11 +152,11 @@ pat_ind = 0;
 %         "HNSCC100","HNSCC101","HNSCC103","HNSCC105","HNSCC106","HNSCC108","HNSCC109"]
 % 	% data with pb, taken out from all available patients above: "HNSCC1","HNSCC10A","HNSCC60","HNSCC102"
         
+    pat_ind = pat_ind + 1;
         
-% for lambda = [0.075]  % default is 0.075
     
 nb_K_ind = 0;
-% for K = [10]      % default for FunSRM is K=40 with square ROI of size 150   % default for imsegkmeans: 150
+for K = [150]      % default for FunSRM is K=40 with square ROI of size 150   % default for imsegkmeans: 150
     
     nb_K_ind = nb_K_ind + 1;
     
@@ -175,7 +186,6 @@ nb_K_ind = 0;
     Curves.abscissas = T;
     Curves.ordinates =  Y;
     
-
     %% Plot original image with tissue enhancement
     
     subj_slic(subj_slic<(lvl-(wdw/2))) = lvl-(wdw/2);
@@ -298,6 +308,12 @@ nb_K_ind = 0;
                 mixstats.klas = sol_km.klas;
                 mixstats.Muk = sol_km.muk;
                 
+            case('gmm')
+                load(mixstatspath);
+                load(mixmodelpath);
+                mixstats.klas = mixstats_red.klas;
+                mixstats.Muk = mixmodel.mu;
+                
             otherwise
 %                 load(mixmodelpath);
 %                 load(mixstatspath);
@@ -395,9 +411,11 @@ nb_K_ind = 0;
 
                 
             case('gmm')
-                gmfit = fitgmdist(Curves.ordinates,K,'RegularizationValue',0.1,...
+                mixmodel = fitgmdist(Curves.ordinates,K,'RegularizationValue',0.1,...
                                      'Options',statset('MaxIter',1500,'TolFun',1e-6));
-                mixstats.klas = cluster(gmfit,Curves.ordinates);
+                [mixstats.klas, mixstats.negloglik, mixstats.posterior, mixstats.logpdf, mixstats.mahadist] = ...
+                                                                                  cluster(mixmodel,Curves.ordinates);
+                
                 
             otherwise
                 error("unknown strategy")
@@ -540,7 +558,7 @@ nb_K_ind = 0;
 %             vars.max_cl = max_cl;
             vars.match_klas = match_klas;
             show_result_on_img(reco_lbl, vars);
-            sgtitle(sprintf('%d slices / %d.   %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), length(match_klas), max_dice, max_jacc),'FontSize',14,'FontWeight','bold')
+            sgtitle(sprintf('%d slices / %d.   %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), length(match_klas), max_dice, max_jacc),'FontSize',14,'FontWeight','bold');
         end
         
         % % With majority filter
@@ -549,7 +567,7 @@ nb_K_ind = 0;
 %             vars.max_cl = max_cl1;
             vars.match_klas = match_klas_filt1;
             show_result_on_img(reco_lbl_filt1, vars);
-            sgtitle(sprintf('%d slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), fsz1, fsz1, fsz1, length(match_klas), max_dice_filt1, max_jacc_filt1),'FontSize',14,'FontWeight','bold')
+            sgtitle(sprintf('%d slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), fsz1, fsz1, fsz1, length(match_klas), max_dice_filt1, max_jacc_filt1),'FontSize',14,'FontWeight','bold');
         end
         
         % % With majority filter 2
@@ -558,7 +576,7 @@ nb_K_ind = 0;
 %             vars.max_cl = max_cl2;
             vars.match_klas = match_klas_filt2;
             show_result_on_img(reco_lbl_filt2, vars);
-            sgtitle(sprintf('%d slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_dice_filt2, max_jacc_filt2),'FontSize',14,'FontWeight','bold')
+            sgtitle(sprintf('%d slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_dice_filt2, max_jacc_filt2),'FontSize',14,'FontWeight','bold');
         end
         
         if plot_rab
@@ -566,7 +584,7 @@ nb_K_ind = 0;
 %             vars.max_cl = max_cl;
             vars.match_klas = match_klas_filt2;
             show_result_on_img(reco_lbl_filt2, vars);
-            sgtitle(sprintf('%d slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_sim2, jacc_array2(max_cl2)),'FontSize',14,'FontWeight','bold')
+            sgtitle(sprintf('%d slices / %d.   With %d*%d*%d filter  -  %d red clusters: Dice = %0.3f, IoU = %0.3f', nb_subplot, length(slic_inds), fsz2, fsz2, fsz2, length(match_klas), max_sim2, jacc_array2(max_cl2)),'FontSize',14,'FontWeight','bold');
         end
         
         
@@ -643,29 +661,46 @@ nb_K_ind = 0;
             Curves.decay_curves = decay_curves;
             [fig_normCurves, fig_decayCurves, fig_loglik] = show_SRM_results_new(Curves, mixmodel, mixstats, model, match_klas, clr);
             
+            save_pdf(gcf,[fn_save_pdf,'__decay_curves.pdf']);
+            
+%             save_pdf(gcf,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_curves_4.pdf']);
         end
         
         if plot_subfigure
             i = 3;
             
-%             fig_slicOrig = figure('units','pixels','outerposition',[0 0 1500 1500]); 
-%             imshow(slics(:,:,slic_show(i)),[])
-%             hold on
+            fig_slicOrig = figure('units','pixels','outerposition',[0 0 1500 1500]); 
+            imshow(slics(:,:,slic_show(i)),[])
+            hold on
 %             plot_tumor_contour(tumor_contour_list{i}, [rmin, cmin], [0,0.5,1]);
-%             save_pdf(fig_slicOrig,[fn_save_pdf,'__ROI',num2str(roi_radius),'_onlySlic',num2str(i),'.pdf']);
+            save_pdf(fig_slicOrig,[fn_save_pdf,'__ROI',num2str(roi_radius),'_onlySlic',num2str(i),'.pdf']);
 
         
             fig_subfig = figure('units','pixels','outerposition',[0 0 900 900]); 
             vars.match_klas = match_klas_filt1;
             show_result_one_subfigure(reco_lbl_filt1, vars, i);
-            save_pdf(fig_subfig,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),...
-                                '_lbda',num2str(lambda),'_filter',num2str(fsz1),'onlySlic',num2str(i),'.pdf']);
+%             save_pdf(fig_subfig,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),...
+%                                 '_lbda',num2str(lambda),'_filter',num2str(fsz1),'onlySlic',num2str(i),'.pdf']);
         end
 
-    
+        
         %% Save image in pdf
         if ~isempty(fn_save_pdf)   % && ~load_saved_mdl
 
+            if strcmp(strategy,'gmm')
+                mixstats_red.klas = mixstats.klas;
+                if exist('elaps_time_clust','var'), mixstats_red.elaps_time = elaps_time_clust; else, mixstats_red.elaps_time = NaN; end
+                mixstats_red.dice = max_dice;
+                if exist('max_dice_filt1','var'), mixstats_red.dice_mrg_flt = max_dice_filt1; else, mixstats_red.dice_mrg_flt = NaN; end
+                save([fn_save_pdf,'_',rdn,'__gmm_ROI',num2str(roi_radius),'_cl',num2str(K),'_mixstats_red.mat'],'mixstats_red')
+                save([fn_save_pdf,'_',rdn,'__gmm_ROI',num2str(roi_radius),'_cl',num2str(K),'_mixstats.mat'],'mixstats')
+                save([fn_save_pdf,'_',rdn,'__gmm_ROI',num2str(roi_radius),'_cl',num2str(K),'_mixmodel.mat'],'mixmodel')
+            
+                if plot_initResults, save_pdf(fig_slic, [fn_save_pdf,'_',rdn,'__gmm_ROI',num2str(roi_radius),'_cl',num2str(K),'.pdf']); end
+            
+            else
+                
+            
             %     rdn = num2str(randi(1000));  % already initialized in SRM MODEL FITTING SECTION
 
             % Save mixtats with more information
@@ -680,7 +715,7 @@ nb_K_ind = 0;
             if exist('elaps_time_clust','var'), mixstats_red.elaps_time = elaps_time_clust; else, mixstats_red.elaps_time = NaN; end
             mixstats_red.loglik = mixstats.loglik;
             mixstats_red.dice = max_dice;
-            mixstats_red.dice_mrg_flt = max_dice_filt1;
+            if exist('max_dice_filt1','var'), mixstats_red.dice_mrg_flt = max_dice_filt1; else, mixstats_red.dice_mrg_flt = NaN; end
             save([fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_lbda',num2str(lambda),'_mixstats_red.mat'],'mixstats_red')
             
             
@@ -707,20 +742,21 @@ nb_K_ind = 0;
                 save_pdf(fig_loglik,[fn_save_pdf,'_',rdn,'__ROI',num2str(roi_radius),'_cl',num2str(K),'_convergence.pdf'])
             end
 
+            end
         end
     
     end
     
-    dic(pat_ind,nb_K_ind) = max_dice_filt1;
-    jac(pat_ind,nb_K_ind) = max_jacc_filt1;
+    dic(pat_ind,nb_K_ind) = max_dice;
+    jac(pat_ind,nb_K_ind) = max_jacc;
 
-% end  % end K
+end  % end K
     
-end  % end lambda
-
     pat = [pat, patient_nm, '; '];
 
 end  % end patient
+
+end  % end lambda
 
 save([results_folder_name,'/all_dic.mat'],'dic');
 save([results_folder_name,'/all_jac.mat'],'jac');

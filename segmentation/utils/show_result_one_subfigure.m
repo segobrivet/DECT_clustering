@@ -20,6 +20,6 @@ for cl_id=1:vars.K
     end
 end
 slic_rgb = cat(3,slic_r, slic_g, slic_b);
-imshow(slic_rgb(vars.rmin:vars.rmax,vars.cmin:vars.cmax,:),[])
+imshow(slic_rgb(vars.rmin:vars.rmax,vars.cmin:vars.cmax,:),[]);
 hold on
 plot_tumor_contour(vars.tumor_contour_list{i}, [vars.rmin, vars.cmin], [0.99,0.99,0.99]);

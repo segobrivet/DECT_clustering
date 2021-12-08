@@ -102,7 +102,7 @@ for k=1:K %min(K,63)
     % ylim([min(Y,[],'all') max(Y,[],'all')]);
 end
 box on;
-suptitle(['Normalized curves per cluster - ', char(model)])
+suptitle(['Normalized curves per cluster - ', char(model)]);
 
 for k = (K+1):length(ha)
     axes(ha(k));
@@ -133,7 +133,7 @@ for k=1:K  %min(K,63)
 end
 box on;
 gcf
-suptitle(['Energy decay curves per cluster - ', char(model)])
+suptitle(['Energy decay curves per cluster - ', char(model)]);
 
 for k = (K+1):length(ha)
     axes(ha(k));
@@ -147,7 +147,7 @@ fig_loglik = figure;
 plot(mixstats.stored_loglik,'b-');
 xlabel('SRM-EM iteration number');
 ylabel('observed data log-likelihood');box on;
-suptitle(['Convergence for ',char(model),' method'])
+suptitle(['Convergence for ',char(model),' method']);
 
 %
 
@@ -196,3 +196,118 @@ else
 end
 
 end
+
+
+
+% %%% plot ENERGY DECAY CURVES
+% 
+% figure; hold on;
+% p = {};
+% energy_decay_list_stored = {};
+% lgd = [];
+% lbl = [];
+% kev_list = 40:5:140';
+% % Bone
+% crv_idx = find(mixstats.klas==1);
+% energy_decay_list_stored{1} = decay_curves(crv_idx(randi(length(crv_idx),8,1)),:)';
+% % Tumor
+% crv_idx = find(mixstats.klas==23);
+% energy_decay_list_stored{2} = decay_curves(crv_idx(randi(length(crv_idx),10,1)),:)';
+% % Tissue
+% crv_idx1 = find(mixstats.klas==28);
+% crv_idx2 = find(mixstats.klas==21);
+% crv_idx3 = find(mixstats.klas==19);
+% crv_idx4 = find(mixstats.klas==35);
+% crv_idx = [crv_idx1(randi(length(crv_idx1),5,1));crv_idx2(randi(length(crv_idx2),5,1));crv_idx3(randi(length(crv_idx3),5,1));crv_idx4(randi(length(crv_idx4),5,1))];
+% energy_decay_list_stored{3} = decay_curves(crv_idx,:)';
+% 
+% labels = ["bone","tumor","tissue"];
+% 
+% %%% Define colormaps
+% cmap=cell(1,4);
+% % (try to discard the first dark points and the last light points of the colormap)
+% cmap_tmp = winter(size(energy_decay_list_stored{1},2)+8);
+% cmap{1} = cmap_tmp(1:end-8,:);
+% try  % predefine few maps if there is more than 1 type
+%     cmap_tmp = hot(size(energy_decay_list_stored{2},2)+15);
+%     cmap{2} = cmap_tmp(5:end-11,:);
+%     cmap_tmp = summer(size(energy_decay_list_stored{3},2)+8);
+%     cmap{3} = cmap_tmp(1:end-8,:);
+%     cmap_tmp = pink(size(energy_decay_list_stored{4},2)+15);
+%     cmap{4} = cmap_tmp(5:end-11,:);
+% catch
+%     % do nothing
+% end
+% 
+% for type=1:length(energy_decay_list_stored)
+%     for i=1:size(energy_decay_list_stored{type},2)
+%         p{type}(i) = plot(kev_list, energy_decay_list_stored{type}(:,i), 'o-', 'MarkerSize', 5, 'MarkerFaceColor',cmap{type}(i,:), 'Color',cmap{type}(i,:)); %
+%     end
+%     lgd = [lgd, p{type}(1),p{type}(ceil(end/2)),p{type}(end)];
+%     lbl = [lbl,"",labels{type},""];
+% end
+% xlim([min(kev_list) max(kev_list)]);
+% ylim([min(decay_curves,[],'all') max(decay_curves,[],'all')]);
+% xlabel('keV','FontWeight','bold')
+% ylabel('HU','FontWeight','bold')
+% legend(lgd, lbl, 'NumColumns',length(labels))
+% title("Energy decay curves")
+
+
+
+% %%% plot MEAN FUNCTION APPROXIMATION
+
+% figure;
+% for k=23
+%     sigmak2 = sqrt(mixmodel.Sigmak2(k));
+%     Ic_k = [mixstats.Muk(:,k)-2*sigmak2 mixstats.Muk(:,k)+2*sigmak2];
+% %     axes(ha(k));
+%     tum_idx = find(k==match_klas);
+%     if ~isempty(tum_idx)
+%         plot(T,Y(mixstats.klas==k,:)','color',cmap_tum(tum_idx,:),'linewidth',0.001);
+%         ylabel(['TUMOR - Cl ',num2str(k)],'FontWeight','bold');
+%     else
+%         plot(T,Y(mixstats.klas==k,:)','color',clr(k,:),'linewidth',0.001);
+%         ylabel(['Cluster ',num2str(k)],'FontWeight','bold');
+%     end
+%     hold on
+%     plot(T,mixstats.Muk(:,k),'k','linewidth',5);
+%     hold on
+%     plot(T,Ic_k,'k--','linewidth',1);
+%     
+%     xlim([min(T) max(T)]);
+%     % ylim([min(Y,[],'all') max(Y,[],'all')]);
+% end
+% title(['Normalized curves per cluster - ', char(model)]);
+
+
+%%% plot MEAN FUNCTION GMM FIT
+% 
+% T = 1:size(mixmodel.mu,2);
+% K = 24; %size(gmfit.mu,1);
+% 
+% fig_gmm_Mu = figure('units','normalized','outerposition',[0 0 0.5 0.7]);
+% ha = set_subplot_grid(K);
+% 
+% for k=127:150
+%     axes(ha(k-126));
+%     try
+%         plot(T,Y(mixstats.klas==k,:),'color',clr(k,:),'linewidth',0.001);
+%     catch
+%     end
+%     ylabel(['Cluster ',num2str(k)],'FontWeight','bold');
+%     hold on
+%     plot(T,mixstats.Muk(k,:),'k','linewidth',5);
+%     ylabel(['Cluster ',num2str(k)],'FontWeight','bold');
+%     
+%     xlim([min(T) max(T)]);
+% %     ylim([min(decay_curves,[],'all') max(decay_curves,[],'all')]);
+% end
+% box on;
+% gcf
+% suptitle(['Mean component curve per cluster']);
+% 
+% for k = (K+1):length(ha)
+%     axes(ha(k));
+%     axis off
+% end
