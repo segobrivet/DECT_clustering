@@ -6,6 +6,9 @@ The aim of this project is to perform an unsupervised clustering of Dual-Energy 
 This project is developed in Matlab.  
 A remote GPU machine is recommanded for heavy computations.
 
+Pseudo-codes are also provided in `pseudo_codes.pdf`, referring to our paper: "Spectral image clustering on dual-energy CT scans using functional regression mixtures" (link of our TechRXiv to come).
+
+
 ### Data
 DECT are 4D data: a 3D body volume over a range of X-ray energy levels.  
 *Data are not sharable, so data folders in this repo are empty and need to be filled on local machines.*  
@@ -15,7 +18,7 @@ DECT are 4D data: a 3D body volume over a range of X-ray energy levels.
 In `dataset_builder` folder, a large section around tumors is cut from DECT, as well as its ground truth segmentation, and the two are saved as .mat files in `data_tumor` folder.  
 
 ### 2. Clustering
-In `clustering` folder, `main_clustering.m` script:
+In `segmentation` folder, `main_clustering.m` script:
 - loads a an image file and its associated ground truth segmentation, 
 - computes an image clustering,
 - at least one cluster region covers the tumor and a Dice score is computed between the cluster region(s) of interest and the ground truth segment.
@@ -25,4 +28,3 @@ The unsupervised clustering algorithm is based on mixtures-of-experts models, we
 The clustering algorithm is an adaptation from Faicel Chamroukhi repository:  
 Curve clustering with the MixFRHLP model and the EM (or a CEM-like) algorithm  
 https://github.com/fchamroukhi/mixRHLP_m  
-
