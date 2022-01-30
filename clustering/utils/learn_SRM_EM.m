@@ -172,7 +172,7 @@ while (EM_run <= nbr_EM_runs)
         if strcmp(mixingOption,'softmax')
             % update the mixing proportions : Alphak
             %%  IRLS : Iteratively Reweighted Least Squares
-            softmax = IRLS(Xw, Tauik, Alphak);
+            softmax = IRLS(Xw, lambda, Tauik, Alphak);
             Alphak = softmax.W;
             piik = softmax.piik;
         else

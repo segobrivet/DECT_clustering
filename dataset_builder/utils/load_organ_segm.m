@@ -93,6 +93,10 @@ nrrd_struct.data = [];
 
 % % % % % % % % % %%%%%  REFINEMENTS IF TOO BIG  %%%%% % % % % % % % % % %
 
+% Cut volume section if too big
+% % 1. Select only the major tumor part if splitted along Z axis,
+% % 2. Select only 20 middles slices if bigger than that
+
 if isempty(segm_vol_full_list) && ~isempty(segm_vol_full)
     segm_vol_full = cut_if_big_object(segm_vol_full);
 else

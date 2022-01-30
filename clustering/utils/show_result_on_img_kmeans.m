@@ -14,13 +14,11 @@ for i=1:min(vars.max_slic_subplot,length(vars.slic_show))
     for cl_id=1:vars.K
         cc = find(T(:,:,i) == cl_id);
         tum_idx = find(cl_id==vars.match_klas);
-        if ~isempty(tum_idx)  % shade of red colors
+        if ~isempty(tum_idx)    % shade of red colors for tumor clusters
             slic_r(cc) = cmap(tum_idx,1);
             slic_g(cc) = cmap(tum_idx,2);
             slic_b(cc) = cmap(tum_idx,3);
-%         if cl_id == vars.max_cl
-%             slic_r(cc) = 1; slic_g(cc) = 0; slic_b(cc) = 0;  % red
-        else
+        else                    % random colors for other clusters
             slic_r(cc) = vars.clr(cl_id,1); slic_g(cc) = vars.clr(cl_id,2); slic_b(cc) = vars.clr(cl_id,3);
         end
     end

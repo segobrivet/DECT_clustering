@@ -1,67 +1,39 @@
 % Load data and build dataset for ground truth and curves and prepare plots
 
-function res = build_patient_data(machine_type, patient_nm, take_which_slices, org_ids, roi_radius, max_slic_subplot, show_slices)
+function res = build_patient_data(machine_type, patient_nm, nb_slices, roi_size, max_slic_subplot, show_slices)
 
     switch(machine_type)
-        case('sego_laptop')
-            if strcmp(patient_nm(1:4),'subj') && (~strcmp(patient_nm(end-4:end),'tumor'))
-                load(['../../data_organs/',patient_nm,'_organs_',org_ids,'_GT.mat']);
-                load(['../../data_organs/',patient_nm,'_organs_',org_ids,'.mat']);
-            else
-                load(['../../data/',patient_nm,'_GT.mat']);
-                load(['../../data/',patient_nm,'.mat']);
-            end
-        case('sego_clean')
-            if strcmp(patient_nm(1:4),'subj') && (~strcmp(patient_nm(end-4:end),'tumor'))
-                load(['../data_organs/',patient_nm,'_organs_',org_ids,'_GT.mat']);
-                load(['../data_organs/',patient_nm,'_organs_',org_ids,'.mat']);
-            else
-                load(['../data_tumor/',patient_nm,'_GT.mat']);
-                load(['../data_tumor/',patient_nm,'.mat']);
-            end
-        case('Peter')
-            load(['../data/',patient_nm,'_GT.mat']);
-            load(['../data/',patient_nm,'.mat']);
+        
+        case('local')
+            load(['../data_tumor/',patient_nm,'_GT.mat']);
+% /!\ the name 'segm_vol_full' is given to the loaded variable, and is used in the following.
+            load(['../data_tumor/',patient_nm,'.mat']);
+% /!\ the name 'subject' is given to the loaded variable, and is used in the following.
+
         case('GPU')
-            if strcmp(patient_nm(1:4),'subj') && (~strcmp(patient_nm(end-4:end),'tumor'))
-                load(['../data/matfiles/',patient_nm,'_organs_',org_ids,'_GT.mat']);
-                load(['../data/matfiles/',patient_nm,'_organs_',org_ids,'.mat']);
-            else
-                load(['../data/matfiles/',patient_nm,'_GT.mat']);
-                load(['../data/matfiles/',patient_nm,'.mat']);
-            end
-		case('GPU_clean')
-            if strcmp(patient_nm(1:4),'subj') && (~strcmp(patient_nm(end-4:end),'tumor'))
-                % ?
-            else
-                load(['../../data/data_tumor/',patient_nm,'_GT.mat']);
-                load(['../../data/data_tumor/',patient_nm,'.mat']);
-            end
-        case('Faicel')
-            ...
+            load(['../../data/data_tumor/',patient_nm,'_GT.mat']);
+% /!\ the name 'segm_vol_full' is given to the loaded variable, and is used in the following.
+            load(['../../data/data_tumor/',patient_nm,'.mat']);
+% /!\ the name 'subject' is given to the loaded variable, and is used in the following.
+
         otherwise
             error('unknown machine type');
     end
+
     
     % Get tumor slices
     [~,~,slic_min] = ind2sub(size(segm_vol_full),find(segm_vol_full,1,'first')); % lower slice containing a tumor
     [~,~,slic_max] = ind2sub(size(segm_vol_full),find(segm_vol_full,1,'last')); % higher slice containing a tumor
     % Selecting all tumor slices
-    switch(take_which_slices)
+    switch(nb_slices)
         case('all')   % take all tumor slices
             slic_inds = 1:(slic_max-slic_min+1);
-%         case('8middle')   % take 8 middle slices
-%             slic_inds = round((slic_max-slic_min+1)/2)-4 : round((slic_max-slic_min+1)/2)+3;
-%             if min(slic_inds) <= 0, slic_inds = slic_inds-slic_inds(1)+1; end
-%             if max(slic_inds) > (slic_max-slic_min+1), slic_inds = slic_inds(slic_inds<=(slic_max-slic_min+1)); end
         otherwise
-            slic_inds = round((slic_max-slic_min+1)/2)-floor(take_which_slices/2) : round((slic_max-slic_min+1)/2)+ceil(take_which_slices/2-1);
+            slic_inds = round((slic_max-slic_min+1)/2)-floor(nb_slices/2) : round((slic_max-slic_min+1)/2)+ceil(nb_slices/2-1);
             if min(slic_inds) <= 0, slic_inds = slic_inds-slic_inds(1)+1; end
             if max(slic_inds) > (slic_max-slic_min+1), slic_inds = slic_inds(slic_inds<=(slic_max-slic_min+1)); end
     end
    
-    % Selecting the 6 slices in the middle of the tumor to plot on figure
-%     max_slic_subplot = 6;
     if length(slic_inds) >= max_slic_subplot
         switch(show_slices)
             case 'middle'
@@ -80,7 +52,7 @@ function res = build_patient_data(machine_type, patient_nm, take_which_slices, o
     [subj_slic, focus, xy_min, xy_max] = mask_outOfBody(permute(subject{1}(:,:,slic_inds),[2 1 3]));
    
    
-    % Select a ROI of the 3D volume    
+    % Select a VOI of the 3D volume    
     gr_truth = segm_vol_full(:,:,slic_min+slic_inds-1);
     s = regionprops(gr_truth,'centroid');
     try
@@ -90,8 +62,9 @@ function res = build_patient_data(machine_type, patient_nm, take_which_slices, o
     end
     tc = round(s.Centroid(1)); tr = round(s.Centroid(2));
     
-    rmax = tr + floor(roi_radius/2);
-    rmin = tr - (ceil(roi_radius/2)-1);
+    % Defines the VOI around the tumor
+    rmax = tr + floor(roi_size/2);
+    rmin = tr - (ceil(roi_size/2)-1);
     if rmax > xy_max(1)
         shift = rmax - xy_max(1);
         rmax = xy_max(1);
@@ -102,8 +75,8 @@ function res = build_patient_data(machine_type, patient_nm, take_which_slices, o
         rmin = xy_min(1);
         rmax = rmax + shift;		            
     end
-    cmax = tc + floor(roi_radius/2);
-    cmin = tc - (ceil(roi_radius/2)-1);
+    cmax = tc + floor(roi_size/2);
+    cmin = tc - (ceil(roi_size/2)-1);
     if cmax > xy_max(2)
         shift = cmax - xy_max(2);
         cmax = xy_max(2);
@@ -120,7 +93,7 @@ function res = build_patient_data(machine_type, patient_nm, take_which_slices, o
     gr_truth_dil = zeros(size(gr_truth));
     for i=1:length(slic_inds)
         gr_truth_dil(rmin:rmax,cmin:cmax,i) = ones(rmax-rmin+1,cmax-cmin+1);  % for a square
-%         gr_truth_dil(:,:,i) = imdilate(gr_truth(:,:,i),strel('disk',roi_radius)); % for a circle
+%         gr_truth_dil(:,:,i) = imdilate(gr_truth(:,:,i),strel('disk',roi_size)); % for a circle
     end
     lin_obj = find(gr_truth_dil);  % ROI around tumor;
     

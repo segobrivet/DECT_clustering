@@ -17,11 +17,15 @@ for k=1:K
     if k==tum_klas_idx, DB(k) = NaN; continue; end
     
     clust_ind = labels == k;
-    clust_center = mean(data(clust_ind,:),1);  % cluster center
-    Sk = mean( sqrt(sum( (data(clust_ind,:)-repmat(clust_center,sum(clust_ind),1)).^2, 2)) );  % intra-variability
+    if sum(clust_ind) == 0
+        DB(k) = NaN;
+    else
+        clust_center = mean(data(clust_ind,:),1);  % cluster center
+        Sk = mean( sqrt(sum( (data(clust_ind,:)-repmat(clust_center,sum(clust_ind),1)).^2, 2)) );  % intra-variability
 
 
-    DB(k) = (Stum + Sk) / norm(tum_center-clust_center,2);  % clustering score between 2 clusters
+        DB(k) = (Stum + Sk) / norm(tum_center-clust_center,2);  % clustering score between 2 clusters
+    end
 end
 
 

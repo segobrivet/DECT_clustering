@@ -1,4 +1,4 @@
-function res = IRLS(X, Y, Winit, verbose)
+function res = IRLS(X, lambda, Y, Winit, verbose)
 % res = IRLS(X, Y, Winit, verbose) : an efficient Iteratively Reweighted Least-Squares (IRLS) algorithm for estimating
 % the parameters of a multinomial logistic regression model given the
 % "predictors" X and a partition (hard or smooth) Y into K>=2 groups
@@ -79,9 +79,8 @@ function res = IRLS(X, Y, Winit, verbose)
 [n, K] = size(Y);
 [n,q] = size(X);% q here is (q+1)
 
-if nargin<4; verbose = 0;end
-if nargin<3; Winit = zeros(q,K-1);end % if there is no a specified initialization
-lambda = 1e-9;% if a MAP regularization (a gaussian prior on W) (L_2 penalization); lambda isa positive hyperparameter
+if nargin<5; verbose = 0;end
+if nargin<4; Winit = zeros(q,K-1);end % if there is no a specified initialization
 
 I = eye(q*(K-1));% define an identity matrix
 

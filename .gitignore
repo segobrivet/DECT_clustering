@@ -1,6 +1,3 @@
 
 data_tumor/
-data_organs/
-dataset_builder/utils_organs/
-segmentation/results*
-segmentation/build_results_tables.m
+
