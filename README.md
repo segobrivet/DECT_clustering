@@ -16,7 +16,7 @@ A remote GPU machine was used for heavy computations.
 
 ### Data
 DECT are 4D data: a 3D body volume over a range of X-ray energy levels.  
-*Data are not sharable, so data folders in this repo are empty and need to be filled on local machines.*  
+*Data are not sharable, so the data folder in this repo is empty and need to be filled on local machines.*  
 
 
 ### Method
@@ -41,9 +41,12 @@ In `clustering` folder, `main.m` script:
 - learn image clustering models with different tunable options,
 - post-process clustering results and plot visualizations,
 
-`build_clustering_idx` script:
+`build_cluster_separ_indx` script:
 - computes metrics to assess the clustering quality,
 
-`results_analysis` script:
-- compiles previously computed metrics from different methods and performs a comparative analysis.
+`build_results_tables` script:
+- compiles previously computed metrics from different methods,
+
+`build_results_analysis` script:
+- outputs and plots statistical comparative analysis (e.g. t-test, boxplots)
 
