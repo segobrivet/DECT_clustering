@@ -3,14 +3,16 @@
 %                                                                         %
 %                             Compile results                             %
 %                                                                         %
-%                                                                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Segolene Brivet (segolene.brivet@mail.mcgill.ca)
 
-% To run this script, you first need to:
+
+% The general workflow is:
 % 1. main.m: learn model and get clustering results in 'mixstats_red' variable 
-% 2. build_cluster_idx: compute clustering index scores and Dice scores
-% 3. come and run script here, save results as .mat file
-% 4. then, once results are saved for every method, go to resutls_analysis file 
+% 2. build_cluster_separ_idx: compute clustering index scores and Dice scores for several images and update 'mixstats_red' variable with these scores
+% 3.Here: build_results_table: compile results for several methods and save each of them as a .mat file
+% 4. resutls_analysis: boxplot and statistical values to analyse methods
+
 
 results_folder_name = 'results-SgMFR-Bspl';
 % results_folder_name = 'results-SgMFR-poly';
@@ -74,8 +76,8 @@ for patient_name = patient_names
         
         DB_spat_results = [DB_spat_results, mixstats_red.DB_spat];
         DB_spec_results = [DB_spec_results, mixstats_red.DB_spec];
-        DBt_spat_results = [DBt_spat_results, mixstats_red.DBc_spat];
-        DBt_spec_results = [DBt_spec_results, mixstats_red.DBc_spec];
+        DBt_spat_results = [DBt_spat_results, mixstats_red.DBt_spat];
+        DBt_spec_results = [DBt_spec_results, mixstats_red.DBt_spec];
     end
     
 end
@@ -85,8 +87,8 @@ results.dice = dice_results;
 results.time = time_results;
 results.DB_spat = DB_spat_results;
 results.DB_spec = DB_spec_results;
-results.DBc_spat = DBt_spat_results;
-results.DBc_spec = DBt_spec_results;
+results.DBt_spat = DBt_spat_results;
+results.DBt_spec = DBt_spec_results;
 results.patient_names = patient_names;
 
 % save('results_SgMFR-Bspl','results')

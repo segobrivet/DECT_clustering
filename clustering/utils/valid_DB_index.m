@@ -1,6 +1,6 @@
 function res = valid_DB_index(data,labels,tum_klas_idx)
 
-% adaptation of Davis Bouldin clustering validity indix for tumor fitting 
+% adaptation of Davis Bouldin clustering index for tumor fitting 
 % Segolene Brivet, segolene.brivet@mail.mcgill.ca, Dec 2021
 
 

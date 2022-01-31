@@ -3,14 +3,15 @@
 %                                                                         %
 %                           Analyse all results                           %
 %                                                                         %
-%                                                                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Segolene Brivet (segolene.brivet@mail.mcgill.ca)
 
-% To run this script, you first need to:
-% 1. main.m: learn model and get clustering results in 'mixstats_red' variable
-% 2. build_cluster_idx.m: compute clustering index scores and Dice scores
-% 3. build_results_table.m: crun and save results as .mat file
-% 4. once results are saved for every method, come here and launch analysis
+
+% The general workflow is:
+% 1. main.m: learn model and get clustering results in 'mixstats_red' variable 
+% 2. build_cluster_separ_idx: compute clustering index scores and Dice scores for several images and update 'mixstats_red' variable with these scores
+% 3. build_results_table: compile results for several methods and save each of them as a .mat file
+% 4.Here: resutls_analysis: boxplot and statistical values to analyse methods
 
 
 load('results_SgMFR-Bspl.mat')
@@ -33,6 +34,12 @@ results_SelSearch = results;
 % Significance of improvement between best of baseline and worse of our method.
 [h,p] = ttest2(results_SgMFR_poly.dice,results_kmeans.dice)
 
+
+%% Examples of statistical values:
+
+% mean(results_SgMFR_poly.dice)
+% median(results_SgMFR_poly.dice)
+% itq(results_SgMFR_poly.dice) % interquartile range
 
 
 %% BOXPLOT for metrics with all results

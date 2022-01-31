@@ -2,6 +2,16 @@
 
 %% LOAD DATASET AND GROUND TRUTH SEGMENTATION
 
+% This code reads DICOM files, build a subject scan section around a tumor,
+% and save it as a .mat file.
+% For the ground truth: a 3D binary image is saved ('segm_vol_full' variable)
+% For the subject scan: a 'subject' variable is a cell array where each
+% cell specifies an energy level (21 levels between 40keV and 140keV) and 
+% contains a 3D image scan section around a tumor (aligned with ground truth scan section)
+
+% Segolene Brivet (segolene.brivet@mail.mcgill.ca)
+
+
 % close all; clc
 % clear all;
 
@@ -20,26 +30,7 @@ for patient_name = ["HNSCC9"]
 %         "HNSCC81","HNSCC82","HNSCC83","HNSCC84","HNSCC85","HNSCC87","HNSCC88","HNSCC89","HNSCC90",...
 %         "HNSCC91","HNSCC92","HNSCC95","HNSCC96","HNSCC97","HNSCC98",...
 %         "HNSCC100","HNSCC101","HNSCC103","HNSCC105","HNSCC106","HNSCC108","HNSCC109"]
-% 		% "HNSCC1","HNSCC10A","HNSCC60","HNSCC102"]
 
-% all patients on MAC:
-%         ["HNSCC1","HNSCC2","HNSCC3","HNSCC5","HNSCC8","HNSCC9","HNSCC10","HNSCC10A",...
-%         "HNSCC11","HNSCC12","HNSCC13","HNSCC15","HNSCC15A","HNSCC17","HNSCC17A","HNSCC18","HNSCC20",...
-%         "HNSCC21","HNSCC22","HNSCC22A","HNSCC25","HNSCC26","HNSCC27","HNSCC29","HNSCC30",...
-%         "HNSCC31A","HNSCC32","HNSCC33","HNSCC34","HNSCC35","HNSCC36","HNSCC37A","HNSCC38","HNSCC39",...
-%         "HNSCC41","HNSCC42","HNSCC44","HNSCC44AM","HNSCC45","HNSCC46","HNSCC47","HNSCC48","HNSCC49",...
-%         "HNSCC51","HNSCC52","HNSCC52AM","HNSCC53","HNSCC55","HNSCC56","HNSCC57","HNSCC60",...
-%         "HNSCC61A","HNSCC62","HNSCC63","HNSCC63A","HNSCC64A","HNSCC65A","HNSCC66","HNSCC67","HNSCC68","HNSCC69",...
-%         "HNSCC70A","HNSCC71","HNSCC72A","HNSCC73","HNSCC74","HNSCC75","HNSCC76","HNSCC77","HNSCC78","HNSCC79","HNSCC80",...
-%         "HNSCC81","HNSCC82","HNSCC83","HNSCC84","HNSCC85","HNSCC87","HNSCC88","HNSCC89","HNSCC90",...
-%         "HNSCC91","HNSCC92","HNSCC95","HNSCC96","HNSCC97","HNSCC98",...
-%         "HNSCC100","HNSCC101","HNSCC102", "HNSCC103","HNSCC105","HNSCC106","HNSCC108","HNSCC109"]
-
-% PB: "HNSCC1": different size in 40kev slices (512*469) compared to 45,...,140kev slices (512*512)
-% PB: "HNSCC10A": names of folder differs from other patients
-% PB: "HNSCC60": Different number of Z slices according to keV levels
-% PB: "HNSCC102: on Mac: /Users/Shared/datasts/HNSCC/Multi-Energy/HNSCC102/ROI mask/Hnscc102 is empty
-    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % data_folder = "C:\\Users\\Segolene\\Documents\\Canada\\McGill\\PhD\\Multi-energy CT\\data\\HNSCC";

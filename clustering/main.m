@@ -12,6 +12,24 @@
 % Segolene Brivet (segolene.brivet@mail.mcgill.ca)
 
 
+% The general workflow is:
+% 1.Here: main.m: learn model and get clustering results in 'mixstats_red' variable 
+% 2. build_cluster_separ_idx: compute clustering index scores and Dice scores for several images and update 'mixstats_red' variable with these scores
+% 3. build_results_table: compile results for several methods and save each of them as a .mat file
+% 4. resutls_analysis: boxplot and statistical values to analyse methods
+
+%%% Data %%%
+% Data were saved as .mat file with the following specifications:
+%    (code for our specific dataset is shared on 'dataset_builder' folder)
+% For the ground truth:     the .mat file that is loaded in this script should contain 
+%                           a 3D binary (0s and 1s) image scan section and be named 'segm_vol_full'
+% For the subject scan:     the .mat file that is loaded in this script should contain 
+%                           a cell array named 'subject' with 21 cells (for 21 energy levels) 
+%                           and each cell contains a 3D image scan section around a tumor (aligned with ground truth scan section)
+% The scan sections were build so that each slice in the 3D section contains a region of interest 
+% (e.g. ground truth tumor) i.e. ground truth must have some '1s' in each slice.
+%%%  %%%
+
 clear all; 
 close all; 
 clc;
@@ -44,7 +62,7 @@ mixingOption = 'gaussian';
 % mixingOption = 'softmax';
 
 % model = "poly"; % Polynomial regression mixture
-% model = "SRM"; % Spline regression mixture  % TODO
+% model = "spl"; % Spline regression mixture
 model = "Bspl";% B-Spline regression mixture
 
 p = 3; % polynomial regression degree
@@ -254,7 +272,7 @@ for K = nbK
             case('poly')
                 regressionOptions.basis = 'polynomial';
                 regressionOptions.p = p;
-            case 'SRM'
+            case('spl')
                 regressionOptions.basis = 'spline';
                 regressionOptions.spline_order = spline_order;
                 regressionOptions.nknots = nknots;
