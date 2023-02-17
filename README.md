@@ -3,7 +3,7 @@
 The aim of this project is to perform an unsupervised clustering of Dual-Energy Computed Tomography (DECT) scans in order to observe separation of tumor tissues or organ anatomical regions with dedicated cluster regions.  
 
 The user can refer to our paper explaining the proposed methods coded in this repository:  
-**"DECT-CLUST: Dual-Energy CT Image Clustering and Application to Head and Neck Squamous Cell Carcinoma Segmentation"** available at doi: http://dx.doi.org/10.3390/diagnostics12123072
+**"DECT-CLUST: Dual-Energy CT Image Clustering and Application to Head and Neck Squamous Cell Carcinoma Segmentation"** available at doi: https://doi.org/10.3390/diagnostics12123072
 
 The codes are written by Faicel Chamroukhi and Ségolène Brivet (segolene.brivet@gmail.com).
 
